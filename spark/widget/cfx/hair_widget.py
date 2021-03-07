@@ -7,7 +7,7 @@ for each in [sample_color_variable, sample_widget_template, style_sheet_template
 
 from spark.widget.sample.sample_widget_template import SAMPLE_WIDGET_TEMPLATE
 
-class CLOTH_WIDGET():
+class HAIR_WIDGET():
     def __init__(self):
         self.sample_widget_template = SAMPLE_WIDGET_TEMPLATE()
 
@@ -44,8 +44,7 @@ class CLOTH_WIDGET():
         scroll_area.setWidget(scroll_widget)
         main_widget_vertical_layout.addWidget(scroll_area)
 
-
-        #button_widget = self.sample_widget_template.widget_def()
+        # button_widget = self.sample_widget_template.widget_def()
 
         grid_layout = self.sample_widget_template.grid_layout(parent_self=scroll_widget, set_spacing=3)
 
@@ -65,10 +64,9 @@ class CLOTH_WIDGET():
                 new_value = 0
                 vertical_val += 1
 
-            a+=1
+            a += 1
 
-        grid_layout.addItem(self.sample_widget_template.spaceItem(), vertical_val,new_value, 1, 1)
-
+        grid_layout.addItem(self.sample_widget_template.spaceItem(), vertical_val, new_value, 1, 1)
 
         return main_widget
 
