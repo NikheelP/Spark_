@@ -3,7 +3,7 @@ from spark.widget.import_module import *
 import os
 
 from spark.widget.sample import sample_color_variable, sample_widget_template, style_sheet_template
-from spark.widget.cfx import cloth_widget, hair_widget, fur_widget, common_widget, user_widget
+from spark.widget.cfx_widget import cloth_widget, hair_widget, fur_widget, common_widget, user_widget
 
 for each in [sample_color_variable, sample_widget_template, style_sheet_template, cloth_widget, hair_widget, fur_widget, common_widget,
              user_widget]:
@@ -12,11 +12,11 @@ for each in [sample_color_variable, sample_widget_template, style_sheet_template
 from spark.widget.sample.sample_maya_widget import SAMPLE_WIDGET
 from spark.widget.sample.sample_widget_template import SAMPLE_WIDGET_TEMPLATE
 from spark.widget.sample.style_sheet_template import STYLE_SHEET_TEMPLATE
-from spark.widget.cfx.cloth_widget import CLOTH_WIDGET
-from spark.widget.cfx.hair_widget import HAIR_WIDGET
-from spark.widget.cfx.fur_widget import FUR_WIDGET
-from spark.widget.cfx.common_widget import COMMON_WIDGET
-from spark.widget.cfx.user_widget import USER_WIDGET
+from spark.widget.cfx_widget.cloth_widget import CLOTH_WIDGET
+from spark.widget.cfx_widget.hair_widget import HAIR_WIDGET
+from spark.widget.cfx_widget.fur_widget import FUR_WIDGET
+from spark.widget.cfx_widget.common_widget import COMMON_WIDGET
+from spark.widget.cfx_widget.user_widget import USER_WIDGET
 
 class CFX(SAMPLE_WIDGET):
     def __init__(self, title='CFX'):
