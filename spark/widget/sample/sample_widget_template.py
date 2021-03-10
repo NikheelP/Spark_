@@ -418,6 +418,22 @@ class SAMPLE_WIDGET_TEMPLATE():
 
         return listWidget
 
+    def treeWidget(self, setHeaderHidden=False):
+        '''
+
+        :return:
+        '''
+
+        treeWidget = QTreeWidget()
+
+        treeWidget.setHeaderHidden(setHeaderHidden)
+
+        treeWidget.setSelectionMode(treeWidget.ExtendedSelection)
+
+        return treeWidget
+
+
+
 
     def styleSheet_def(self, obj_name, color=[], background_color=[],
                        border_pix=0, border_type='Solid',

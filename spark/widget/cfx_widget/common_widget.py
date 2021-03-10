@@ -53,6 +53,26 @@ class COMMON_WIDGET():
         a = 0
         new_value = 0
         vertical_val = 0
+
+        # FILTER SELECTION OUTLINER
+        filter_outline = 'Filter Outline'
+        filter_outline_button = self.sample_widget_template.pushButton(set_text=filter_outline,
+                                                               min_size=[button_size, button_size])
+        filter_outline_button.clicked.connect(self.filter_outline_button_def)
+        grid_layout.addWidget(filter_outline_button, vertical_val, new_value, 1, 1)
+        new_value += 1
+        # PLAYBLAST MANAGER
+        # MOTION MULT NODE
+        # TRANSFORM CACHE NODE
+        # RENAME TOOL
+        # WEDGE TOOL
+        # CONNECTION EDITOR
+        # ASSIGN RANDOM SHADER
+        # MAKE A TECHANIM SCENE
+        # RIVET
+
+
+        '''
         side_val = 4
         while a < 50:
             button_text = 'Sample_' + str(a)
@@ -65,10 +85,19 @@ class COMMON_WIDGET():
                 vertical_val += 1
 
             a += 1
-
+        '''
+        vertical_val += 1
         grid_layout.addItem(self.sample_widget_template.spaceItem(), vertical_val, new_value, 1, 1)
 
         return main_widget
+
+    def filter_outline_button_def(self):
+        from spark.widget.common_widget import filter_outline
+        reload(filter_outline)
+        from spark.widget.common_widget.filter_outline import FILTER_OUTLINE
+
+        filter_window = FILTER_OUTLINE()
+        filter_window.show()
 
 
 

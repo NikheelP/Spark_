@@ -59,6 +59,19 @@ class COLOR_VARIABLE():
         basic_font_radius_size = 10
         basic_font_weight = 'bold'
 
+
+        #make a object color
+        self.nurbsCurve_color = self.orange_color
+        self.dynamicConstraint_color = self.green_color
+        self.transform_color = self.blue_color
+        self.mesh_color = self.yellow_color
+        self.ncloth_color = self.pink_color
+        self.locator_color = self.pink_color
+        self.camera_color = self.violet_color
+        self.nucleus_color = self.red_color
+        self.clusterHandle_color = self.lime_color
+
+
         # PUSHBUTTON BASIC 1 COLOR
         self.pushbutton_basic_1_background_color = COLOR_VARIABLE_CHILD(value=[117, 138, 255])
         self.pushbutton_basic_1_color = COLOR_VARIABLE_CHILD(value=[255, 255, 255])

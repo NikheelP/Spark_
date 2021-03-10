@@ -59,8 +59,6 @@ class CLOTH_WIDGET():
         new_value = 0
         vertical_val = 0
 
-
-
         #SMOOTH
         smooth_text = 'SmoothNode'
         smooth_button = self.sample_widget_template.pushButton(set_text=smooth_text,
@@ -90,41 +88,22 @@ class CLOTH_WIDGET():
 
 
         #CLUSTER TWEAK
-        #FILTER SELECTION OUTLINER
-        #PLAYBLAST MANAGER
+
+
 
         #WRAP
         #NOISE DEFORMER
-        #MOTION MULT NODE
-        #TRANSFORM CACHE NODE
-        #RENAME TOOL
-        #WEDGE TOOL
+
         #MESH COLLUTION
-        #CONNECTION EDITOR
-        #ASSIGN RANDOM SHADER
-        #MAKE A TECHANIM SCENE
+
+
         #CFX TWEAK LIKE SONY
-        #RIVET
+
+        #RigFx
+
+
         #
-
-
-
-
-
-        '''
-        side_val = 4
-        while a < 50:
-            button_text = 'Sample_' + str(a)
-            button_name = self.sample_widget_template.pushButton(set_text=button_text,
-                                                                 min_size=[button_size, button_size])
-            grid_layout.addWidget(button_name, vertical_val, new_value, 1, 1)
-            new_value += 1
-            if new_value > side_val:
-                new_value = 0
-                vertical_val += 1
-
-            a+=1
-        '''
+        vertical_val +=1
         grid_layout.addItem(self.sample_widget_template.spaceItem(), vertical_val,new_value, 1, 1)
 
 
