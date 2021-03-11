@@ -1,9 +1,4 @@
-from spark.widget.import_module import *
-
 from spark.widget.sample import sample_color_variable, sample_widget_template, style_sheet_template
-import os
-import maya.cmds as cmds
-import maya.mel as mel
 
 for each in [sample_color_variable, sample_widget_template, style_sheet_template]:
     reload(each)
@@ -84,17 +79,46 @@ class CLOTH_WIDGET():
         new_value += 1
 
         # SOFT MOD
-
+        softmod_text = 'SoftMod'
+        softmod_push_button = self.sample_widget_template.pushButton(set_text=softmod_text,
+                                                                    min_size=[button_size, button_size])
+        softmod_push_button.clicked.connect(self.softmod_push_def)
+        grid_layout.addWidget(softmod_push_button, vertical_val, new_value, 1, 1)
+        new_value += 1
 
 
         #CLUSTER TWEAK
+        cluster_tweak_text = 'Cluster_Tweak'
+        cluster_tweak_push_button = self.sample_widget_template.pushButton(set_text=cluster_tweak_text,
+                                                                     min_size=[button_size, button_size])
+        cluster_tweak_push_button.clicked.connect(self.cluster_tweak_push_button_def)
+        grid_layout.addWidget(cluster_tweak_push_button, vertical_val, new_value, 1, 1)
+        vertical_val += 1
+        new_value = 0
 
+        #BLEND WRAP
+        blendWrap_text = 'BlendWrap'
+        blendWrap_push_button = self.sample_widget_template.pushButton(set_text=blendWrap_text,
+                                                                           min_size=[button_size, button_size])
+        blendWrap_push_button.clicked.connect(self.blendWrap_push_button_def)
+        grid_layout.addWidget(blendWrap_push_button, vertical_val, new_value, 1, 1)
+        new_value += 1
 
-
-        #WRAP
         #NOISE DEFORMER
+        noiseDeform_text = 'NoiseDeform'
+        noiseDeform_push_button = self.sample_widget_template.pushButton(set_text=noiseDeform_text,
+                                                                       min_size=[button_size, button_size])
+        noiseDeform_push_button.clicked.connect(self.noiseDeform_push_button_def)
+        grid_layout.addWidget(noiseDeform_push_button, vertical_val, new_value, 1, 1)
+        new_value += 1
 
         #MESH COLLUTION
+        meshCollution_text = 'meshCollution'
+        meshCollution_push_button = self.sample_widget_template.pushButton(set_text=meshCollution_text,
+                                                                         min_size=[button_size, button_size])
+        meshCollution_push_button.clicked.connect(self.meshCollution_push_button_def)
+        grid_layout.addWidget(meshCollution_push_button, vertical_val, new_value, 1, 1)
+        new_value += 1
 
 
         #CFX TWEAK LIKE SONY
@@ -120,23 +144,59 @@ class CLOTH_WIDGET():
         print('this is the text: ' , text)
 
     def smooth_button_def(self):
-        from spark.CFX import deformer_create
+        from spark.department.CFX import deformer_create
         deformer_create.smooth_deformer()
 
     def corrective_button_def(self):
-        from spark.CFX import deformer_create
+        from spark.department.CFX import deformer_create
         reload(deformer_create)
         deformer_create.corrective_blendshape()
 
     def normal_push_def(self):
-        from spark.CFX import deformer_create
+        from spark.department.CFX import deformer_create
         reload(deformer_create)
         deformer_create.normalPush()
 
+    def softmod_push_def(self):
+        '''
 
+        :return:
+        '''
+        print('soft mod is going to create')
 
+    def cluster_tweak_push_button_def(self):
+        '''
 
+        :return:
+        '''
+        from spark.department.CFX.cfx_tools import cluster_tweak
+        reload(cluster_tweak)
+        from spark.department.CFX import CLUSTER_TWEAK
+        cluster_tweak_class = CLUSTER_TWEAK()
+        cluster_tweak_class.cluster_tweak()
 
+    def blendWrap_push_button_def(self):
+        from spark.department.CFX import deformer_create
+        reload(deformer_create)
+        deformer_create.blendWrap()
+
+    def noiseDeform_push_button_def(self):
+        '''
+
+        :return:
+        '''
+        from spark.department.CFX import deformer_create
+        reload(deformer_create)
+        deformer_create.noiseDeformer()
+
+    def meshCollution_push_button_def(self):
+        '''
+
+        :return:
+        '''
+        from spark.department.CFX import deformer_create
+        reload(deformer_create)
+        deformer_create.meshCollution()
 
 
 

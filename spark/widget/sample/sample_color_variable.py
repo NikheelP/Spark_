@@ -70,6 +70,7 @@ class COLOR_VARIABLE():
         self.camera_color = self.violet_color
         self.nucleus_color = self.red_color
         self.clusterHandle_color = self.lime_color
+        self.light_color = self.brown_color
 
 
         # PUSHBUTTON BASIC 1 COLOR

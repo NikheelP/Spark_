@@ -1,5 +1,3 @@
-from spark.widget.import_module import *
-
 from spark.widget.sample import sample_color_variable, sample_widget_template, style_sheet_template
 
 for each in [sample_color_variable, sample_widget_template, style_sheet_template]:
@@ -63,8 +61,24 @@ class COMMON_WIDGET():
         new_value += 1
         # PLAYBLAST MANAGER
         # MOTION MULT NODE
+        # FILTER SELECTION OUTLINER
+        motionMultNode_text = 'MotionMult'
+        motionMultNode_button = self.sample_widget_template.pushButton(set_text=motionMultNode_text,
+                                                                       min_size=[button_size, button_size])
+        motionMultNode_button.clicked.connect(self.motionMultNode_button_def)
+        grid_layout.addWidget(motionMultNode_button, vertical_val, new_value, 1, 1)
+        new_value += 1
+
+
         # TRANSFORM CACHE NODE
         # RENAME TOOL
+        rename_text = 'Rename'
+        rename_button = self.sample_widget_template.pushButton(set_text=rename_text,
+                                                                       min_size=[button_size, button_size])
+        rename_button.clicked.connect(self.rename_button_def)
+        grid_layout.addWidget(rename_button, vertical_val, new_value, 1, 1)
+        new_value += 1
+
         # WEDGE TOOL
         # CONNECTION EDITOR
         # ASSIGN RANDOM SHADER
@@ -100,7 +114,25 @@ class COMMON_WIDGET():
         filter_window.show()
 
 
+    def motionMultNode_button_def(self):
+        '''
 
+        :return:
+        '''
+        from spark.department.CFX import node_create
+        reload(node_create)
+        node_create.motionMult()
+
+    def rename_button_def(self):
+        '''
+
+        :return:
+        '''
+        from spark.widget.common_widget import rename_widget
+        reload(rename_widget)
+        from spark.widget.common_widget.rename_widget import RENAME_WIDGET
+        rename_widget_ = RENAME_WIDGET()
+        rename_widget_.show()
 
 
 
