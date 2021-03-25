@@ -22,8 +22,6 @@ class SAMPLE_WIDGET_TEMPLATE():
         self.lineedit_type_float = 'float'
         self.lineedit_type_string = 'string'
 
-
-
     def widget_def(self, parent_self= '', set_object_name='', min_size=[0, 0], max_size=[16777215, 16777215], set_styleSheet=''''''):
         '''
         SPECIFY THE WIDGET WITH SOME DEFAULT SETTING

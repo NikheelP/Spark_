@@ -19,6 +19,23 @@ class HELP():
     def snap_object(self, source_obj, target_obj):
         pass
 
+    def add_tag(self, obj, tag_name, tag_value):
+        '''
+        ADD TAG
+        :param obj : SPECIFY THE OBJECT TO TAG
+        :param tag_name: SPECIFY THE TAG NAME
+        :param tag_value: SPECIFY THE  TAG VALUE
+        :return:
+        '''
+
+        if cmds.objExist(obj):
+            pass
+
+
+
+
+
+
 def load_plugin(plugin_path):
     '''
 
