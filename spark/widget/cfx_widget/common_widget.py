@@ -128,6 +128,17 @@ class COMMON_WIDGET():
                                                               set_tool_tip=sortlist_toolTip,
                                                               connect=self.sort_def)
         grid_layout.addWidget(sortlist_button, vertical_val, new_value, 1, 1)
+        new_value += 1
+
+        # RIVET
+        rivet_text = 'Rivet'
+        rivet_toolTip = 'Create a Rivet\n Select Two Edge and Click this Button'
+        rivet_button = self.sample_widget_template.pushButton(set_text=rivet_text,
+                                                                 min_size=[button_size, button_size],
+                                                                 set_tool_tip=rivet_toolTip,
+                                                                 connect=self.rivet_def)
+        grid_layout.addWidget(rivet_button, vertical_val, new_value, 1, 1)
+        new_value += 1
 
 
         '''
@@ -226,7 +237,16 @@ class COMMON_WIDGET():
         sort_class = SORTLIST()
         sort_class.sort_selected()
 
+    def rivet_def(self):
+        '''
 
+        :return:
+        '''
+        from spark.department.common import rivet
+        reload(rivet)
+        from spark.department.common.rivet import RIVET
+        rivet_class = RIVET()
+        rivet_class.create()
 
 
 

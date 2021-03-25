@@ -1,1 +1,1 @@
-print('this is the test python')
+print('this is new test')
