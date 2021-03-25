@@ -163,6 +163,11 @@ class CLOTH_WIDGET():
         :return:
         '''
         print('soft mod is going to create')
+        from spark.department.CFX.cfx_tools import softMod
+        reload(softMod)
+        from spark.department.CFX.cfx_tools.softMod import SOFTMOD
+        softmod_class = SOFTMOD()
+        softmod_class.cfx_softMod()
 
     def cluster_tweak_push_button_def(self):
         '''
