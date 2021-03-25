@@ -1,5 +1,5 @@
 from spark.widget.sample import sample_color_variable, sample_widget_template, style_sheet_template
-
+from spark.widget.import_module import *
 for each in [sample_color_variable, sample_widget_template, style_sheet_template]:
     reload(each)
 
@@ -80,11 +80,24 @@ class CLOTH_WIDGET():
 
         # SOFT MOD
         softmod_text = 'SoftMod'
-        softmod_push_button = self.sample_widget_template.pushButton(set_text=softmod_text,
+        self.softmod_push_button = self.sample_widget_template.pushButton(set_text=softmod_text,
                                                                     min_size=[button_size, button_size])
-        softmod_push_button.clicked.connect(self.softmod_push_def)
-        grid_layout.addWidget(softmod_push_button, vertical_val, new_value, 1, 1)
+        self.softmod_push_button.clicked.connect(self.softmod_push_def)
+        grid_layout.addWidget(self.softmod_push_button, vertical_val, new_value, 1, 1)
         new_value += 1
+
+        # SOFT MOD
+        addsoftmod_set_text = 'Add SoftMod to Set'
+        addsoftmod_set_toolTip = 'Select a softModHandle first, then toggle select all geo to add to its set'
+        self.add_softmod_set_button = self.sample_widget_template.pushButton(set_text=addsoftmod_set_text,
+                                                                          min_size=[button_size, button_size],
+                                                                             set_tool_tip=addsoftmod_set_toolTip,
+                                                                             connect=self.add_softmod_set_button_def)
+        grid_layout.addWidget(self.add_softmod_set_button, vertical_val, new_value, 1, 1)
+
+
+        vertical_val += 1
+        new_value = 0
 
 
         #CLUSTER TWEAK
@@ -93,8 +106,7 @@ class CLOTH_WIDGET():
                                                                      min_size=[button_size, button_size])
         cluster_tweak_push_button.clicked.connect(self.cluster_tweak_push_button_def)
         grid_layout.addWidget(cluster_tweak_push_button, vertical_val, new_value, 1, 1)
-        vertical_val += 1
-        new_value = 0
+        new_value += 1
 
         #BLEND WRAP
         blendWrap_text = 'BlendWrap'
@@ -168,6 +180,14 @@ class CLOTH_WIDGET():
         from spark.department.CFX.cfx_tools.softMod import SOFTMOD
         softmod_class = SOFTMOD()
         softmod_class.cfx_softMod()
+
+    def add_softmod_set_button_def(self):
+        print('Set is Going to add')
+        from spark.department.CFX.cfx_tools import softMod
+        reload(softMod)
+        from spark.department.CFX.cfx_tools.softMod import SOFTMOD
+        softmod_class = SOFTMOD()
+        softmod_class.joeAddSets()
 
     def cluster_tweak_push_button_def(self):
         '''

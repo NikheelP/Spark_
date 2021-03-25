@@ -7,8 +7,6 @@ class SOFTMOD:
     def __init__(self):
         pass
 
-
-
     def joeMod(self, compSel):
 
         if (not mc.objExists(compSel)):
