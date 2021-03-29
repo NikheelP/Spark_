@@ -89,7 +89,7 @@ class CACHEMANAGER:
                 if self.get_file_name() in each:
                     file_path_list.append(each)
         file_name = self.get_file_name() + '_' + str(len(file_path_list))
-        cache_file_name = mel.eval('doCreateNclothCache 4 { "2", "1", "10", "OneFile", "1", "%s","0","%s","1", "add", "0", "1", "1","0","1" };' % (ncloth_folder_name, file_name))[0]
+        cache_file_name = mel.eval('doCreateNclothCache 4 { "2", "1", "10", "OneFile", "1", "%s","0","%s","1", "add", "0", "1", "1","0","1" };' % (ncloth_folder_name, file_name))
 
 
         print('this is the attr_val: ', attr_list_val)
