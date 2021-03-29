@@ -92,7 +92,7 @@ class CACHEMANAGER:
         if '-' in file_name:
             file_name = file_name.replace('-', '_')
         cache_file_name = mel.eval('doCreateNclothCache 4 { "2", "1", "10", "OneFile", "1", "%s","0","%s","1", "add", "0", "1", "1","0","1" };' % (ncloth_folder_name, file_name))[0]
-
+        print('')
 
         print('this is the attr_val: ', attr_list_val)
         #write the file
