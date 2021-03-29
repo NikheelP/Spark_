@@ -89,6 +89,8 @@ class CACHEMANAGER:
                 if self.get_file_name() in each:
                     file_path_list.append(each)
         file_name = self.get_file_name() + '_' + str(len(file_path_list))
+        if '-' in file_name:
+            file_name = file_name.replace('-', '_')
         cache_file_name = mel.eval('doCreateNclothCache 4 { "2", "1", "10", "OneFile", "1", "%s","0","%s","1", "add", "0", "1", "1","0","1" };' % (ncloth_folder_name, file_name))[0]
 
 
