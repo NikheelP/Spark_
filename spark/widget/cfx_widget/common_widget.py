@@ -140,6 +140,16 @@ class COMMON_WIDGET():
         grid_layout.addWidget(rivet_button, vertical_val, new_value, 1, 1)
         new_value += 1
 
+        # CACHE MANAGER
+        cache_manger_text = 'Cache Manger'
+        cache_manger_toolTip = 'Manage your cache and Playblast'
+        cache_manger_button = self.sample_widget_template.pushButton(set_text=cache_manger_text,
+                                                              min_size=[button_size, button_size],
+                                                              set_tool_tip=cache_manger_toolTip,
+                                                              connect=self.cache_manger_def)
+        grid_layout.addWidget(cache_manger_button, vertical_val, new_value, 1, 1)
+        new_value += 1
+
 
         '''
         side_val = 4
@@ -248,6 +258,16 @@ class COMMON_WIDGET():
         rivet_class = RIVET()
         rivet_class.create()
 
+    def cache_manger_def(self):
+        '''
+
+        :return:
+        '''
+        from spark.widget.common_widget import cacheManger_widget
+        reload(cacheManger_widget)
+        from spark.widget.common_widget.cacheManger_widget import CACHEMANGER_WIDGET
+        cache_mager_class = CACHEMANGER_WIDGET()
+        cache_mager_class.show()
 
 
 

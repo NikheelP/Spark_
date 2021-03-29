@@ -1,7 +1,9 @@
 
 import maya.cmds as cmds
 from shiboken2 import wrapInstance
-
+import os
+import subprocess
+FILEBROWSER_PATH = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
 
 
 
@@ -31,7 +33,15 @@ class HELP():
         if cmds.objExist(obj):
             pass
 
+    def explore(self, path):
+        # explorer would choke on forward slashes
+        path = os.path.normpath(path)
 
+        if os.path.isdir(path):
+            subprocess.run([FILEBROWSER_PATH, path])
+        elif os.path.isfile(path):
+
+            subprocess.run([FILEBROWSER_PATH, '/select,', path])
 
 
 

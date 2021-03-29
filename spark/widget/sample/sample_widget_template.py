@@ -317,7 +317,7 @@ class SAMPLE_WIDGET_TEMPLATE():
 
         return line_edit
 
-    def checkbox(self, set_text='', set_object_name='', set_tool_tip='', set_status='', set_checked=False, stateChanged=''):
+    def checkbox(self, set_text='', set_object_name='', set_tool_tip='', set_status='', set_checked=False, stateChanged='', set_styleSheet=''''''):
         checkbox = QCheckBox()
 
         checkbox.setText(set_text)
@@ -332,6 +332,8 @@ class SAMPLE_WIDGET_TEMPLATE():
 
         if stateChanged != '':
             checkbox.stateChanged.connect(stateChanged)
+
+        checkbox.setStyleSheet(set_styleSheet)
 
         return checkbox
 
@@ -429,9 +431,6 @@ class SAMPLE_WIDGET_TEMPLATE():
         treeWidget.setSelectionMode(treeWidget.ExtendedSelection)
 
         return treeWidget
-
-
-
 
     def styleSheet_def(self, obj_name, color=[], background_color=[],
                        border_pix=0, border_type='Solid',
@@ -713,7 +712,6 @@ class SAMPLE_WIDGET_TEMPLATE():
 
         return action_name
 
-
     def gridLayout_widget(self, type_object='', noOfColum=1,noOfObject=0, max_size_list=[], min_size_list=[], set_object_list=[], set_tool_tip_list=[],
                           set_status_list=[], set_icon_list=[], set_icon_size_list=[], set_styleSheet_list=[], set_text_list=[]):
         '''
@@ -811,9 +809,29 @@ class SAMPLE_WIDGET_TEMPLATE():
         spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         return spacerItem
 
+    def plainTextEdit(self):
+        '''
+
+        :return:
+        '''
+
+        plainTextEdit = QPlainTextEdit()
 
 
+        return plainTextEdit
 
+    def setObjectName(self, text=''):
+        '''
+        set the object name from the object
+        :param text: specify the object
+        :return:
+        '''
+
+        text = text.replace(' ', '_')
+
+        obj_name = text + '_Object'
+
+        return obj_name
 
 
 

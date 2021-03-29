@@ -23,10 +23,6 @@ class HELP:
 
         return obj
 
-
-
-
-
     def set_outline_color(self, obj, val=[0,0,0]):
         '''
 
@@ -39,3 +35,4 @@ class HELP:
         cmds.setAttr(obj + '.outlinerColor', val[0], val[1], val[2])
 
         return obj
+
