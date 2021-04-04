@@ -119,6 +119,7 @@ class COMMON_WIDGET():
                                                               set_tool_tip=rigFx_toolTip,
                                                               connect=self.rigFx_toolTip_def)
         grid_layout.addWidget(rigFx_button, vertical_val, new_value, 1, 1)
+        new_value += 1
 
         # SORTLIST
         sortlist_text = 'SortList'
@@ -227,9 +228,9 @@ class COMMON_WIDGET():
 
         :return:
         '''
-        from spark.widget.common_widget import rigFX
-        reload(rigFX)
-        from spark.widget.common_widget.rigFX import RIGFX_WIDGET
+        from spark.widget.common_widget import rigFX_widget
+        reload(rigFX_widget)
+        from spark.widget.common_widget.rigFX_widget import RIGFX_WIDGET
         rigfx_class = RIGFX_WIDGET()
 
         rigfx_class.show()

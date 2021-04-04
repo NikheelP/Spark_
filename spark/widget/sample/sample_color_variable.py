@@ -36,6 +36,9 @@ class COLOR_VARIABLE():
     can be get and set new value to change the widget color
     '''
     def __init__(self):
+
+
+
         # 18color
         self.red_color = COLOR_VARIABLE_CHILD(value=[254, 0, 2])
         self.blue_color = COLOR_VARIABLE_CHILD(value=[1, 0, 254])
@@ -72,6 +75,11 @@ class COLOR_VARIABLE():
         self.clusterHandle_color = self.lime_color
         self.light_color = self.brown_color
 
+        #CFX COLOR
+        self.nCloth_color = self.lime_color
+        self.nRigit_color = self.orange_color
+        self.nConstraint_color = self.yellow_color
+        self.nHair_color = self.red_color
 
         # PUSHBUTTON BASIC 1 COLOR
         self.pushbutton_basic_1_background_color = COLOR_VARIABLE_CHILD(value=[117, 138, 255])
@@ -160,6 +168,7 @@ class COLOR_VARIABLE():
         self.user_help_color = COLOR_VARIABLE_CHILD(value=[74, 74, 74])
 
 
+
     def color_list(self):
         color_list = [[255, 0, 0], (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255), (192,192,192),
                       (128,128,128), (128,0,0), (128,128,0), (0,128,0), (128,0,128), (0,128,128), (0,0,128),
@@ -175,6 +184,10 @@ class COLOR_VARIABLE():
                 self.yellow_color, self.pink_color, self.purple_color, self.violet_color,
                 self.turquoise_color, self.gold_color, self.lime_color, self.aqua_color, self.navy_color,
                 self.coral_color, self.teal_color, self.brown_color, self.white_color, self.black_color]
+
+
+
+
 
 
 
