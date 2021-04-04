@@ -418,13 +418,16 @@ class SAMPLE_WIDGET_TEMPLATE():
 
         return listWidget
 
-    def treeWidget(self, setHeaderHidden=False):
+    def treeWidget(self, parent_self='', setHeaderHidden=False):
         '''
 
         :return:
         '''
 
-        treeWidget = QTreeWidget()
+        if parent_self != '':
+            treeWidget = QTreeWidget(parent_self)
+        else:
+            treeWidget = QTreeWidget()
 
         treeWidget.setHeaderHidden(setHeaderHidden)
 

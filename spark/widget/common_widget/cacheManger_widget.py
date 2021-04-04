@@ -90,15 +90,17 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         #DO THE TAB WIDGET
         tab_widget = self.sample_widget_template.tab_widget(parent_self=cloth_input_output_widget)
+        stylesheet = """ 
+                    QTabBar::tab:selected {background: green;}
+                    QTabWidget>QWidget>QWidget{background: gray;}
+                    """
+        tab_widget.setStyleSheet(stylesheet)
         vertical_layout.addWidget(tab_widget)
 
         # SIM TAB
         self.sim_tab_widget = self.sample_widget_template.widget_def(parent_self=tab_widget)
-        stylesheet = """ 
-            QTabBar::tab:selected {background: green;}
-            QTabWidget>QWidget>QWidget{background: gray;}
-            """
-        tab_widget.setStyleSheet(stylesheet)
+        sim_tab_vertical_layout = self.sample_widget_template.vertical_layout(parent_self=self.sim_tab_widget)
+        sim_tab_vertical_layout.addWidget(self.sim_tree_def())
         tab_widget.addTab(self.sim_tab_widget, 'Sim'.upper())
 
         # INPUT TAB
@@ -146,7 +148,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         ncloth_text = 'nCloth'
         ncloth_obj_name = self.sample_widget_template.setObjectName(ncloth_text)
         ncloth_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=ncloth_obj_name,
-                                                                       color=self.color_variable_class.lime_color.get_value())
+                                                                       color=self.color_variable_class.nCloth_color.get_value())
         ncloth_checkbox = self.sample_widget_template.checkbox(set_text=ncloth_text,
                                                                set_object_name=ncloth_obj_name,
                                                                set_styleSheet=ncloth_styleSheet)
@@ -156,7 +158,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         # NRIGIT CHECKBOX
         nrigit_text = 'nRigit'
         nrigit_obj_name = self.sample_widget_template.setObjectName(nrigit_text)
-        nrigit_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nrigit_obj_name, color=self.color_variable_class.orange_color.get_value())
+        nrigit_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nrigit_obj_name, color=self.color_variable_class.nRigit_color.get_value())
         nrigit_chekbox = self.sample_widget_template.checkbox(set_text=nrigit_text,
                                                               set_object_name=nrigit_obj_name,
                                                               set_styleSheet=nrigit_styleSheet)
@@ -167,7 +169,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         nconstraint_text = 'nConstraint'
         nconstraint_obj_name = self.sample_widget_template.setObjectName(nconstraint_text)
         nconstraint_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nconstraint_obj_name,
-                                                                            color=self.color_variable_class.yellow_color.get_value())
+                                                                            color=self.color_variable_class.nConstraint_color.get_value())
         nconstraint_checkbox = self.sample_widget_template.checkbox(set_text=nconstraint_text,
                                                                     set_object_name=nconstraint_obj_name,
                                                                     set_styleSheet=nconstraint_styleSheet)
@@ -177,7 +179,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         # NHAIR CHECKBOX
         nhair_text = 'nHair'
         nhair_obj_name = self.sample_widget_template.setObjectName(nhair_text)
-        nhair_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nhair_obj_name, color=self.color_variable_class.red_color.get_value())
+        nhair_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nhair_obj_name, color=self.color_variable_class.nHair_color.get_value())
         nhair_checkbox = self.sample_widget_template.checkbox(set_text=nhair_text,
                                                               set_object_name=nhair_obj_name,
                                                               set_styleSheet=nhair_styleSheet)
@@ -746,6 +748,40 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         vertical_laout.addWidget(final_cache_list_widget)
 
         return widget
+
+    def sim_tree_def(self):
+        '''
+
+        :return:
+        '''
+        sim_tree_widget = self.sample_widget_template.treeWidget()
+
+        #now get the list of the object
+        cfx_list = self.cache_manager_class.get_cfx_list()
+        for each in cfx_list:
+            parent = QTreeWidgetItem(sim_tree_widget)
+            parent.setText(0, each)
+            parent.setFlags(parent.flags() | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
+            #NCLOTH
+            if cfx_list[each]['nCloth']:
+                for each_nCloth in cfx_list[each]['nCloth']:
+                    ncloth_item = QTreeWidgetItem(parent)
+                    ncloth_item.setText(0, each_nCloth)
+                    ncloth_item.setForeground(0, QBrush(QColor("#123456")))
+
+            if cfx_list[each]['dynamicConstraint']:
+                for each_nConstraint in cfx_list[each]['dynamicConstraint']:
+                    nConstraint_item = QTreeWidgetItem(parent)
+                    nConstraint_item.setText(0, each_nConstraint)
+
+            if cfx_list[each]['nRigid']:
+                for each_nRigit in cfx_list[each]['nRigid']:
+                    nRigit_item = QTreeWidgetItem(parent)
+                    nRigit_item.setText(0, each_nRigit)
+
+
+        return sim_tree_widget
+
 
 
     def input_list_def(self):

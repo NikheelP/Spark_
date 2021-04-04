@@ -44,6 +44,24 @@ class HELP():
             subprocess.run([FILEBROWSER_PATH, '/select,', path])
 
 
+    def obj_rename(self, old_name, new_name):
+        '''
+        RENAME OBJECT
+        :param old_name: specify the old name
+        :param new_name: specify the new name
+        :return:
+        '''
+
+        if cmds.objExists(new_name + '*'):
+            new_name = new_name + str(len(cmds.ls(new_name + '*', type='transform')) + 1)
+
+        cmds.rename(old_name, new_name)
+
+        return new_name
+
+
+
+
 
 
 def load_plugin(plugin_path):

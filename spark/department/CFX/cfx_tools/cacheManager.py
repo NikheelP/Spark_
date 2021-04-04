@@ -5,11 +5,18 @@ import maya.mel as mel
 import os, json
 from os import listdir
 from os.path import isfile, join
+from spark.widget.sample import sample_color_variable
+for each in [sample_color_variable]:
+    reload(each)
 
+
+
+from spark.widget.sample.sample_color_variable import COLOR_VARIABLE
 class CACHEMANAGER:
 
     def __init__(self):
         self.sim_cache_path, self.geo_cache_path, self.playblast_cache_path, self.final_cache_path = self.initcheck()
+        self.color_variable_class = COLOR_VARIABLE()
 
     def get_nucleus_start_frame(self):
         '''
@@ -121,12 +128,6 @@ class CACHEMANAGER:
         attr_list['follicle'] = self.get_follicle_val()
 
         return attr_list
-
-
-
-
-
-        pass
 
     def get_nCloth_val(self):
         '''
@@ -321,6 +322,47 @@ class CACHEMANAGER:
 
 
             return sim_cache_dir, geo_cache_dir, playblast_cache_dir, final_cache_dir
+
+
+
+    def get_cfx_list(self):
+        nucleus_list = cmds.ls(type='nucleus')
+
+        nucleus_dic = {}
+
+        for each_nucleus in nucleus_list:
+            nucleus_dic[each_nucleus] = {}
+            nucleus_dic[each_nucleus]['nCloth'] = []
+            nucleus_dic[each_nucleus]['dynamicConstraint'] = []
+            nucleus_dic[each_nucleus]['nRigid'] = []
+
+            nucleus_connections = list(set(cmds.listConnections(each_nucleus)))
+
+            for each_connection in nucleus_connections:
+                if cmds.objectType(each_connection) == 'transform':
+
+                    shape_node_name = cmds.listRelatives(each_connection, s=True)[0]
+                    # CHCECK CLOTH
+                    if cmds.objectType(shape_node_name) == 'nCloth':
+                        nucleus_dic[each_nucleus]['nCloth'].append(each_connection)
+
+                    if cmds.objectType(shape_node_name) == 'dynamicConstraint':
+                        nucleus_dic[each_nucleus]['dynamicConstraint'].append(each_connection)
+
+                    if cmds.objectType(shape_node_name) == 'nRigid':
+                        nucleus_dic[each_nucleus]['nRigid'].append(each_connection)
+
+        return nucleus_dic
+
+
+
+
+
+
+
+
+
+
 
 
 

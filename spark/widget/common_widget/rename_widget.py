@@ -6,13 +6,16 @@ from functools import partial
 
 from spark.widget.sample import sample_color_variable, sample_widget_template, style_sheet_template
 from spark.department.common import rename
-for each in [sample_color_variable, sample_widget_template, style_sheet_template, rename]:
+from spark.widget import widget_help
+
+for each in [sample_color_variable, sample_widget_template, style_sheet_template, rename, widget_help]:
     reload(each)
 
 from spark.widget.sample.sample_maya_widget import SAMPLE_WIDGET
 from spark.widget.sample.sample_widget_template import SAMPLE_WIDGET_TEMPLATE
 from spark.widget.sample.sample_color_variable import COLOR_VARIABLE
 from spark.department.common.rename import RENAME
+from spark.widget.widget_help import WIDGET_HELP
 
 
 class RENAME_WIDGET(SAMPLE_WIDGET):
@@ -23,7 +26,7 @@ class RENAME_WIDGET(SAMPLE_WIDGET):
         self.prefix_name = 'prefix'
         self.suffix_name = 'suffix'
 
-
+        self.widget_help_class = WIDGET_HELP()
 
         self.initUI()
 
@@ -119,6 +122,7 @@ class RENAME_WIDGET(SAMPLE_WIDGET):
 
         # SEARCH LINEDIT
         self.search_lineedit = self.sample_widget_template.line_edit()
+        self.search_lineedit.textChanged.connect(self.search_lineedit_def)
         self.search_replace_grid_layout.addWidget(self.search_lineedit, vertical_val, new_value, 1, 1)
         new_value += 1
         a += 1
@@ -134,6 +138,7 @@ class RENAME_WIDGET(SAMPLE_WIDGET):
 
         # REPLACE LINEDIT
         self.replace_lineedit = self.sample_widget_template.line_edit()
+        self.replace_lineedit.textChanged.connect(self.replace_lineedit_def)
         self.search_replace_grid_layout.addWidget(self.replace_lineedit, vertical_val, new_value, 1, 1)
         new_value += 1
         a += 1
@@ -195,6 +200,7 @@ class RENAME_WIDGET(SAMPLE_WIDGET):
 
         # PREFIX LINEEDIT
         self.prefix_linedit = self.sample_widget_template.line_edit(set_PlaceholderText='Prefix_')
+        self.prefix_linedit.textChanged.connect(self.prefix_lineedit_def)
         prefix_gridlayout.addWidget(self.prefix_linedit, vertical_val, new_value, 1, 1)
         new_value += 1
 
@@ -221,6 +227,7 @@ class RENAME_WIDGET(SAMPLE_WIDGET):
 
         # suffix LINEEDIT
         self.suffix_linedit = self.sample_widget_template.line_edit(set_PlaceholderText='_Suffix')
+        self.suffix_linedit.textChanged.connect(self.suffix_lineedit_def)
         suffix_gridlayout.addWidget(self.suffix_linedit, vertical_val, new_value, 1, 1)
         new_value += 1
 
@@ -246,6 +253,7 @@ class RENAME_WIDGET(SAMPLE_WIDGET):
 
         # RENMAE LINEDIT
         self.rename_linedit = self.sample_widget_template.line_edit(set_PlaceholderText='Rename object')
+        self.rename_linedit.textChanged.connect(self.rename_lineedit_def)
         rename_gridlayout.addWidget(self.rename_linedit, vertical_val, new_value, 1, 1)
 
         new_value = 0
@@ -338,3 +346,44 @@ class RENAME_WIDGET(SAMPLE_WIDGET):
     def remove_first_charcter_button_def(self):
         list_object = cmds.ls(sl=True)
         self.rename_class.remove_firstword(list_object=list_object)
+
+
+    def search_lineedit_def(self):
+        '''
+        set the tex what we need remove all the punctuation in the lineedit
+        :return:
+        '''
+        text = self.search_lineedit.text()
+        self.search_lineedit.setText(self.widget_help_class.make_simple_text(text))
+
+    def replace_lineedit_def(self):
+        '''
+        set the tex what we need remove all the punctuation in the lineedit
+        :return:
+        '''
+        text = self.replace_lineedit.text()
+        self.replace_lineedit.setText(self.widget_help_class.make_simple_text(text))
+
+    def prefix_lineedit_def(self):
+        '''
+        set the tex what we need remove all the punctuation in the lineedit
+        :return:
+        '''
+        text = self.prefix_linedit.text()
+        self.prefix_linedit.setText(self.widget_help_class.make_simple_text(text))
+
+    def suffix_lineedit_def(self):
+        '''
+        set the tex what we need remove all the punctuation in the lineedit
+        :return:
+        '''
+        text = self.suffix_linedit.text()
+        self.suffix_linedit.setText(self.widget_help_class.make_simple_text(text))
+
+    def rename_lineedit_def(self):
+        '''
+        set the tex what we need remove all the punctuation in the lineedit
+        :return:
+        '''
+        text = self.rename_linedit.text()
+        self.rename_linedit.setText(self.widget_help_class.make_simple_text(text))
