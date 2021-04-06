@@ -24,6 +24,9 @@ class RIGFX:
 
         self.rigFx_type = 'RigFx'
         self.input_type = 'Input'
+        self.inputcloth_type = 'InputCloth'
+        self.restcloth_type = 'RestCloth'
+        self.cloth_type = 'Cloth'
         self.techanim_type = 'TechAnim'
         self.techanim_final_type = 'TechAnimFinal'
         self.sim_type = 'Sim'
@@ -105,11 +108,11 @@ class RIGFX:
                 if each_cloth_mesh == input_name or each_cloth_mesh == rest_name:
                     cmds.setAttr(each_cloth_mesh + '.v', 0)
             if 'cloth' in each_cloth_mesh.lower():
-                self.help_class.set_type(obj=each_cloth_mesh, type_val='cloth')
+                self.help_class.set_type(obj=each_cloth_mesh, type_val=self.cloth_type)
             if 'input' in each_cloth_mesh.lower():
-                self.help_class.set_type(each_cloth_mesh, type_val='input')
+                self.help_class.set_type(each_cloth_mesh, type_val=self.inputcloth_type)
             if 'rest' in each_cloth_mesh.lower():
-                self.help_class.set_type(obj=each_cloth_mesh, type_val='rest')
+                self.help_class.set_type(obj=each_cloth_mesh, type_val=self.restcloth_type)
 
         #MAKE A BLENDSHAPE
         input_blndshape_name = cmds.blendShape(obj, input_name)[0]
@@ -327,6 +330,8 @@ class RIGFX:
         if not cmds.objExists(self.techanim_type + '_Grp'):
             raise Exception(self.techanim_type + '_Grp is not Exists')
 
+        #ADD INPUT TAG TO GEO
+        self.help_class.set_type(obj=geo_name, type_val=self.input_type)
 
         #GET THE OF THE TECHANIM FILE
         techanim_child_list = cmds.listRelatives(self.techanim_type + '_Grp', c=True)
@@ -336,6 +341,7 @@ class RIGFX:
             techanim_geo_name = name + '_' + geo_name
             cmds.duplicate(geo_name, n=techanim_geo_name)
             cmds.parent(techanim_geo_name, each)
+            self.help_class.set_type(obj=techanim_geo_name, type_val=name)
 
             blend_shape = cmds.blendShape(blendshape_obj, techanim_geo_name, o='world')[0]
             cmds.setAttr(blend_shape + '.' + blendshape_obj, 1)
@@ -415,6 +421,8 @@ class RIGFX:
 
         new_curve_list = []
         for each in hair_list:
+            self.help_class.set_type(obj=each, type_val=self.input_type)
+
             duplicate_name = each + '_Static_Crv'
             new_curve_list.append(duplicate_name)
             cmds.duplicate(each, n=duplicate_name)
@@ -522,6 +530,8 @@ class RIGFX:
 
         if not cmds.objExists(collider_grp_name):
             raise RuntimeError(collider_grp_name + ' is not exists')
+
+        self.help_class.set_type(obj=obj_name, type_val=self.input_type)
 
         collution_obj = obj_name + '_Collution'
         collution_nrigit_name = collution_obj + '_nRigit'

@@ -415,7 +415,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         return file_status_widget
 
-
     def notes_tab_widget(self):
         '''
 
@@ -429,7 +428,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         verticalLayout.addWidget(self.notes_plainTextEdit)
 
         return notes_widget
-
 
     def info_tab_widget(self):
         '''
@@ -480,9 +478,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         grid_layout.addItem(self.sample_widget_template.spaceItem(), vertical_val, new_value, 1, 1)
 
         return info_widget
-
-
-
 
     def sim_cache_history_def(self):
         '''
@@ -557,7 +552,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.update_sim_cache_listwidget()
 
         return widget
-
 
     def geo_cache_history_def(self):
         '''
@@ -782,8 +776,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         return sim_tree_widget
 
-
-
     def input_list_def(self):
         '''
 
@@ -794,7 +786,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         return input_list_widget
 
-
     def output_list_def(self):
         '''
 
@@ -804,7 +795,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         output_list_widget = self.sample_widget_template.list_widget()
 
         return output_list_widget
-
 
     def ncloth_cache_def(self):
         '''
@@ -836,7 +826,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         self.update_sim_cache_listwidget()
 
-
     def sim_cache_list_widget_def(self):
         '''
 
@@ -847,7 +836,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         with open(json_path) as f:
             data = json.load(f)
             self.update_ui_json_read(data)
-
 
     def sim_cache_list_widget_contexMenu(self, position):
         # Popup menu

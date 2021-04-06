@@ -726,6 +726,15 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
                                                                       connect=self.rig_fx_class.update_set)
         vericalLayout.addWidget(make_rigfx_organized)
 
+        # ADD TAG
+        add_rigfx_tag_text = 'Add RigFx Tag'
+        add_rigfx_tag_tooolTip = 'Add Manually Tag'
+        add_rigfx_tag = self.sample_widget_template.pushButton(set_text=add_rigfx_tag_text,
+                                                                      set_tool_tip=add_rigfx_tag_tooolTip,
+                                                                      connect=self.add_rigfx_tag_def)
+        vericalLayout.addWidget(add_rigfx_tag)
+
+
 
 
 
@@ -992,6 +1001,19 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         '''
         sel_obj = cmds.ls(sl=True)
         self.rig_fx_class.field_def(sel_obj=sel_obj, type=self.rig_fx_class.volumecurve_type)
+
+
+    def add_rigfx_tag_def(self):
+        '''
+
+        :return:
+        '''
+        from spark.widget.common_widget import rigfxAddTag
+        reload(rigfxAddTag)
+        from spark.widget.common_widget.rigfxAddTag import RIGFXADDTAG
+        rigfxAddTag_class = RIGFXADDTAG()
+        rigfxAddTag_class.show()
+
 
 
 
