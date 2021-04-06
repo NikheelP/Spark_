@@ -24,10 +24,18 @@ class HELP:
         if cmds.ls(obj + '.' + obj_type) == []:
             cmds.addAttr(obj, ln=obj_type, dt='string')
             cmds.setAttr((obj + '.' + obj_type), e=True, k=True)
-
             cmds.setAttr((obj + '.' + obj_type), type_val, type='string')
-        if obj_type == 'obj_type':
             cmds.setAttr((obj + '.' + obj_type), l=True)
+
+        #unlock the value
+        else:
+            cmds.setAttr((obj + '.' + obj_type), l=False)
+            cmds.setAttr((obj + '.' + obj_type), type_val, type='string')
+            cmds.setAttr((obj + '.' + obj_type), l=True)
+
+
+        #if obj_type == 'obj_type':
+            #cmds.setAttr((obj + '.' + obj_type), l=True)
 
         return obj
 
