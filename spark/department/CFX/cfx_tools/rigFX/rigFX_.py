@@ -885,68 +885,81 @@ class RIGFX:
         display_layer_name = self.input_lyr_name
         if not cmds.objExists(display_layer_name):
             self.createDisplayLayer(displayLayerName=display_layer_name, obj_name=self.input_grp)
+            self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
         # TECHANIM
         techAnim_list = cmds.listRelatives('TechAnim_Grp', c=True)
         for each in techAnim_list:
             display_layer_name = each + '_Lyr'
             self.createDisplayLayer(display_layer_name, each)
+            self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
         # CLOTH
         cloth_list = self.get_obj_type('cloth')
         display_layer_name = self.cloth_lyr_name
         self.createDisplayLayer(display_layer_name, cloth_list)
+        self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
         # NCLOTH
         ncloth_list = self.get_obj_type('nCloth')
         display_layer_name = self.nCloth_lyr_name
         self.createDisplayLayer(display_layer_name, ncloth_list)
+        self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
         # INPUT/REST
         input_rest_list = self.get_obj_type('input').extend(self.get_obj_type('rest'))
         display_layer_name = self.input_rest_lyr_name
         self.createDisplayLayer(display_layer_name, input_rest_list)
+        self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
         # COLLUTION
         collution_grp_list = self.get_obj_type('ColliderGrp')
         display_layer_name = self.collution_lyr_name
         self.createDisplayLayer(display_layer_name, collution_grp_list)
+        self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
         # CONSTRAINT
         constraint_grp_list = self.get_obj_type('ConstraintGrp')
         display_layer_name = self.constraint_lyr_name
         self.createDisplayLayer(display_layer_name, constraint_grp_list)
+        self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
         # FIELD
         field_grp_list = self.get_obj_type('FieldGrp')
         display_layer_name = self.field_lyr_name
         self.createDisplayLayer(display_layer_name, field_grp_list)
+        self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
         # EXTRA
         extra_grp_list = self.get_obj_type('ExtraGrp')
         display_layer_name = self.extra_lyr_name
         self.createDisplayLayer(display_layer_name, extra_grp_list)
+        self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
         # FOLLICAL
         folical_grp_list = self.get_obj_type('FolicalGrp')
         display_layer_name = self.folical_lyr_name
         self.createDisplayLayer(display_layer_name, folical_grp_list)
+        self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
         # OUTPUTCURVE
         output_curve_grp_list = self.get_obj_type('OutputCurveGrp')
         display_layer_name = self.outputCurve_lyr_name
         self.createDisplayLayer(display_layer_name, output_curve_grp_list)
+        self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
         # TECHANIM
         techAnim_Cloth_List = cmds.listRelatives('TechAnimCloth_Grp', c=True)
         for each in techAnim_Cloth_List:
             display_layer_name = each + '_Lyr'
             self.createDisplayLayer(display_layer_name, each)
+            self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
         # FINAL
         final_grp_list = self.get_obj_type('Final')
         display_layer_name = self.final_lyr_name
         self.createDisplayLayer(display_layer_name, final_grp_list)
+        self.help_class.set_type(obj=display_layer_name, type_val=display_layer_name)
 
     def create_set(self, obj_list, set_name):
         '''
