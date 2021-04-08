@@ -854,16 +854,14 @@ class RIGFX:
 
         :return:
         '''
-        techanim_lyr = cmds.ls('TechAnim_*_Lyr')
-        techanimcloth_lyr = cmds.ls('TechAnimCloth_*_Lyr')
-        common_lyr = [self.input_lyr_name, self.nCloth_lyr_name, self.cloth_lyr_name, self.input_rest_lyr_name,
-                      self.collution_lyr_name, self.field_lyr_name, self.extra_lyr_name, self.folical_lyr_name, self.outputCurve_lyr_name]
-        if techanim_lyr:
-            common_lyr.extend(techanim_lyr)
-        if techanimcloth_lyr:
-            common_lyr.extend(techanimcloth_lyr)
+        display_layer = cmds.ls(type='displayLayer')
+        display_layer_list = []
+        for each_layer in display_layer:
+            list_attr = cmds.listAttr(each_layer)
+            if 'obj_type' in list_attr:
+                display_layer_list.append(each_layer)
 
-        return common_lyr
+        return display_layer_list
 
 
 
@@ -875,9 +873,8 @@ class RIGFX:
         #DELETE LAYER IF WE HAVE
         if self.get_layer():
             for each in self.get_layer():
-                name = each + '*'
-                if cmds.objExists(name):
-                    cmds.delete(name)
+                if cmds.objExists(each):
+                    cmds.delete(each)
 
         
         # CREATE A DISPLAY LAYER
