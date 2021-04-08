@@ -676,6 +676,16 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         vericalLayout = self.sample_widget_template.vertical_layout(parent_self=scroll_widget,
                                                                     set_spacing=self.spacing)
 
+        # UPDATE OR CREATE LAYER
+        update_or_create_layer_text = 'Update or Create Layer system'
+        update_or_create_layer_tooolTip = 'Update the Layer System with the Name and if it not exists will creat that '
+        update_or_create_layer = self.sample_widget_template.pushButton(set_text=update_or_create_layer_text,
+                                                                        set_tool_tip=update_or_create_layer_tooolTip,
+                                                                        connect=self.rig_fx_class.update_sets_layer)
+        vericalLayout.addWidget(update_or_create_layer)
+
+        '''
+        
         #IMPORT CLOTH RIG
         import_cloth_rig_button_text = 'Improt Cloth Rig'
         import_cloth_rig_button = self.sample_widget_template.pushButton(set_text=import_cloth_rig_button_text)
@@ -706,13 +716,7 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         add_final_geo_to_final_set = self.sample_widget_template.pushButton(set_text=add_final_geo_to_final_set_text)
         vericalLayout.addWidget(add_final_geo_to_final_set)
 
-        #UPDATE OR CREATE LAYER
-        update_or_create_layer_text = 'Update or Create Layer system'
-        update_or_create_layer_tooolTip = 'Update the Layer System with the Name and if it not exists will creat that '
-        update_or_create_layer = self.sample_widget_template.pushButton(set_text=update_or_create_layer_text,
-                                                                        set_tool_tip=update_or_create_layer_tooolTip,
-                                                                        connect=self.rig_fx_class.update_sets_layer)
-        vericalLayout.addWidget(update_or_create_layer)
+       
 
         #MAKE RIGFX ORGANIZED
         make_rigfx_organized_text = 'Make RigFx Organized'
@@ -738,7 +742,7 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
                                                              connect=self.skinBin_jnt_def)
         vericalLayout.addWidget(skinBin_jnt)
 
-
+        '''
 
 
 
