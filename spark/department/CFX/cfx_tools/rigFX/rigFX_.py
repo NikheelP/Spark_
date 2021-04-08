@@ -875,8 +875,9 @@ class RIGFX:
         #DELETE LAYER IF WE HAVE
         if self.get_layer():
             for each in self.get_layer():
-                if cmds.objExists(each):
-                    cmds.delete(each)
+                name = each + '*'
+                if cmds.objExists(name):
+                    cmds.delete(name)
 
         
         # CREATE A DISPLAY LAYER
