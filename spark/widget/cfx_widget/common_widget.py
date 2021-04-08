@@ -1,6 +1,4 @@
 from spark.widget.sample import sample_color_variable, sample_widget_template, style_sheet_template
-import maya.cmds as cmds
-
 
 for each in [sample_color_variable, sample_widget_template, style_sheet_template]:
     reload(each)
@@ -228,9 +226,9 @@ class COMMON_WIDGET():
 
         :return:
         '''
-        from spark.widget.common_widget import rigFX_widget
+        from spark.widget.common_widget.RigFX import rigFX_widget
         reload(rigFX_widget)
-        from spark.widget.common_widget.rigFX_widget import RIGFX_WIDGET
+        from spark.widget.common_widget.RigFX.rigFX_widget import RIGFX_WIDGET
         rigfx_class = RIGFX_WIDGET()
 
         rigfx_class.show()

@@ -2,8 +2,6 @@ from spark.widget.import_module import *
 #from spark.widget.sample.sample_widget import SAMPLE_WIDGET
 import os
 import maya.cmds as cmds
-from functools import partial
-import string
 
 from spark.widget.sample import sample_color_variable, sample_widget_template, style_sheet_template
 from spark.department.common import rename
@@ -14,8 +12,6 @@ for each in [sample_color_variable, sample_widget_template, style_sheet_template
     reload(each)
 
 from spark.widget.sample.sample_maya_widget import SAMPLE_WIDGET
-from spark.widget.sample.sample_widget_template import SAMPLE_WIDGET_TEMPLATE
-from spark.widget.sample.sample_color_variable import COLOR_VARIABLE
 from spark.department.CFX.cfx_tools.rigFX.rigFX_ import RIGFX
 from spark.widget.widget_help import WIDGET_HELP
 from spark.department.common.Outliner import outlinerWidget
@@ -715,7 +711,7 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         update_or_create_layer_tooolTip = 'Update the Layer System with the Name and if it not exists will creat that '
         update_or_create_layer = self.sample_widget_template.pushButton(set_text=update_or_create_layer_text,
                                                                         set_tool_tip=update_or_create_layer_tooolTip,
-                                                                        connect=self.rig_fx_class.update_crate_layer)
+                                                                        connect=self.rig_fx_class.update_sets_layer)
         vericalLayout.addWidget(update_or_create_layer)
 
         #MAKE RIGFX ORGANIZED
@@ -733,6 +729,14 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
                                                                       set_tool_tip=add_rigfx_tag_tooolTip,
                                                                       connect=self.add_rigfx_tag_def)
         vericalLayout.addWidget(add_rigfx_tag)
+
+        # Skin Bind Jnt
+        skinBin_jnt_text = 'skinBind Jnt'
+        skinBin_jnt_tooolTip = 'Bind the Skin with the specific Joint'
+        skinBin_jnt = self.sample_widget_template.pushButton(set_text=skinBin_jnt_text,
+                                                             set_tool_tip=skinBin_jnt_tooolTip,
+                                                             connect=self.skinBin_jnt_def)
+        vericalLayout.addWidget(skinBin_jnt)
 
 
 
@@ -1008,12 +1012,22 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
 
         :return:
         '''
-        from spark.widget.common_widget import rigfxAddTag
+        from spark.widget.common_widget.RigFX import rigfxAddTag
         reload(rigfxAddTag)
-        from spark.widget.common_widget.rigfxAddTag import RIGFXADDTAG
+        from spark.widget.common_widget.RigFX.rigfxAddTag import RIGFXADDTAG
         rigfxAddTag_class = RIGFXADDTAG()
         rigfxAddTag_class.show()
 
+    def skinBin_jnt_def(self):
+        '''
+
+        :return:
+        '''
+        from spark.widget.common_widget.RigFX import skinBindJnt
+        reload(skinBindJnt)
+        from spark.widget.common_widget.RigFX.skinBindJnt import SKINBINDJNT
+        skinBindJnt_class = SKINBINDJNT()
+        skinBindJnt_class.show()
 
 
 
