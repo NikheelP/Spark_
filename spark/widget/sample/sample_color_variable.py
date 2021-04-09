@@ -80,6 +80,7 @@ class COLOR_VARIABLE():
         self.nRigit_color = self.orange_color
         self.nConstraint_color = self.yellow_color
         self.nHair_color = self.red_color
+        self.folical_color = self.gold_color
 
         # PUSHBUTTON BASIC 1 COLOR
         self.pushbutton_basic_1_background_color = COLOR_VARIABLE_CHILD(value=[117, 138, 255])

@@ -63,6 +63,24 @@ class ATTRIBUTE:
             print('NONE OF THE ATTRIBUTE IS SPECIFIED WITH : ', self.vector, self.integer, self.string, self.float, self.boolean, self.enum)
 
 
+    def get_all_attr_val(self, obj_name):
+        '''
+
+        :return:
+        '''
+        attr_list = {}
+        list_attr = cmds.listAttr(obj_name, k=True)
+        for each_attr in list_attr:
+            try:
+                attr_list[each_attr] = cmds.getAttr(obj_name + '.' + each_attr)
+            except:
+                pass
+
+        return attr_list
+
+
+
+
 
 
 
