@@ -600,6 +600,7 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         vericalLayout.addWidget(newton_field_button)
 
         # RADIUS FILED
+        #"C:\Users\Admin\Desktop\Nikheel\Spark_Project\Spark_\spark\widget\common_widget\rigFX_icon\"
         radius_field_button_text = 'Radius Field'
         icon_ = 'radial_field.svg'
         icon_path = rigfxIconPath_ + icon_

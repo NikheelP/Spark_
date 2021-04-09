@@ -32,16 +32,61 @@ class CACHEMANAGER:
 
         return start_frame
 
-    def ncloth_cache_def(self, replace=True, selected=False, sim_start_frame=0, sim_end_frame=100, notes=''):
+    def ncloth_cache_def(self, ncloth_list=[], start_val=0, end_val=0, sim_path='', attr_list={}):
         '''
-        1 - get the atribute value
-        2 - delete the exist cache if any
-        3 - create a new cache if check checkbox say replace cache
-        4 - save json file to the directory with the information
-
-
+        NCLOTH CACHE
+        :param ncloth_list: LIST OF THE NCLOTH
+        :param start_val: SPECIFY THE START VAL
+        :param end_val: SPECIFY THE END VAL
+        :param sim_path: SPECIFY THE SIM PATH
+        :param attr_list: LIST OF THE ATTRIBUTE
         :return:
         '''
+        if ncloth_list:
+            for each in ncloth_list:
+                if cmds.objectType(each) == 'transform':
+                    if cmds.objectType(cmds.listRelatives(each, s=True)) != 'nCloth':
+                        raise RuntimeError('Please Select nCloth Transform Node to run the cpmmand')
+                else:
+                    if cmds.objectType(each) != 'nCloth':
+                        raise RuntimeError('Please Select nCloth Transform Node to run the cpmmand')
+
+
+
+            current_start_frame, current_end_frame = self.set_frames(new_start_frame=start_val,
+                                                                     new_end_frame=end_val)
+
+            #GET THE CACHE NAME
+            onlyfiles = [f for f in listdir(sim_path) if isfile(join(sim_path, f))]
+            file_path_list = []
+
+            for each in onlyfiles:
+                if 'mc' in each:
+                    if self.get_file_name() in each:
+                        file_path_list.append(each)
+            file_name = self.get_file_name() + '_' + str(len(file_path_list)) + '_Sim_Cache'
+
+            cmds.select(ncloth_list)
+            try:
+                mel.eval('deleteCacheFile 2 { "keep", "" } ;')
+            except:
+                pass
+            cache_file_name = mel.eval('doCreateNclothCache 4 { "2", "1", "10", "OneFile", "1", "%s","0","%s","1", "add", "0", "1", "1","0","1" };' % (sim_path, file_name))[0]
+
+            json_path = sim_path + '/' + cache_file_name.split('/')[-1].split('.')[0] + '.json'
+            with open(json_path, 'w') as f:
+                json.dump(attr_list, f)
+
+            cmds.playbackOptions(minTime=current_start_frame, maxTime=current_end_frame)
+
+
+
+
+
+
+
+        '''
+        
         if selected:
             sel_ncloth_nodes = cmds.ls(sl=True)
         else:
@@ -112,6 +157,7 @@ class CACHEMANAGER:
 
 
         print('Cache is going to generate')
+        '''
 
 
     def get_ncloth_nRigit_nConstraint_nHair_value(self):
@@ -335,6 +381,7 @@ class CACHEMANAGER:
             nucleus_dic[each_nucleus]['nCloth'] = []
             nucleus_dic[each_nucleus]['dynamicConstraint'] = []
             nucleus_dic[each_nucleus]['nRigid'] = []
+            nucleus_dic[each_nucleus]['hairSystem'] = []
 
             nucleus_connections = list(set(cmds.listConnections(each_nucleus)))
 
@@ -351,6 +398,9 @@ class CACHEMANAGER:
 
                     if cmds.objectType(shape_node_name) == 'nRigid':
                         nucleus_dic[each_nucleus]['nRigid'].append(each_connection)
+
+                    if cmds.objectType(shape_node_name) == 'hairSystem':
+                        nucleus_dic[each_nucleus]['hairSystem'].append(each_connection)
 
         return nucleus_dic
 

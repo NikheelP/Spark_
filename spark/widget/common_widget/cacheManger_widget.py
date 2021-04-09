@@ -12,7 +12,8 @@ from spark.department.Help import help
 from spark.department.Help import geoCache
 from spark.department.CFX.cfx_tools import cacheManager
 from spark.department.common import rename
-for each in [sample_color_variable, sample_widget_template, style_sheet_template, rename, cacheManager, geoCache, help]:
+from spark.department.Help import attribute
+for each in [sample_color_variable, sample_widget_template, style_sheet_template, rename, cacheManager, geoCache, help, attribute]:
     reload(each)
 
 from spark.widget.sample.sample_maya_widget import SAMPLE_WIDGET
@@ -22,11 +23,17 @@ from spark.department.common.rename import RENAME
 from spark.department.CFX.cfx_tools.cacheManager import CACHEMANAGER
 from spark.department.Help.geoCache import GEOCACHE
 from spark.department.Help.help import HELP
+from spark.department.Help.attribute import ATTRIBUTE
 
 from spark.widget.common_widget import cacheManager_icon
 cacheManagerIconPath = os.path.abspath(cacheManager_icon.__file__).replace('\\', '/')
 last_obj = cacheManagerIconPath.split('/')[-1]
 cacheManagerIconPath = cacheManagerIconPath.split(last_obj)[0]
+
+from spark.widget.common_widget import rigFX_icon
+rigFxIconPath = os.path.abspath(rigFX_icon.__file__).replace('\\', '/')
+last_obj = rigFxIconPath.split('/')[-1]
+rigfxIconPath_ = rigFxIconPath.split(last_obj)[0]
 
 class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
     def __init__(self, title='Cache Manger'):
@@ -34,11 +41,57 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.cache_manager_class = CACHEMANAGER()
         self.geo_cache_class = GEOCACHE()
         self.help_class = HELP()
+        self.attribute_class = ATTRIBUTE()
 
         self.end_time_val = cmds.playbackOptions(q=True, maxTime=True)
         self.start_time_val = cmds.playbackOptions(q=True, minTime=True)
         self.buffer_val = 10
         self.icon_size = 50
+        on_icon = 'onIcon.png'
+        off_icon = 'offIcon.png'
+        self.on_icon_path = cacheManagerIconPath + on_icon
+        self.off_icon_path = cacheManagerIconPath + off_icon
+
+        self.ncloth_tree_vis = True
+        self.nRigit_tree_vis = False
+        self.nConstraint_tree_vis = False
+        self.nhair_tree_vis = False
+        self.follicle1_tree_vis = False
+        self.ncloth_tree_widget_item = []
+        self.sim_tree_widget_item = {}
+
+        #CACHE MANAER NODE
+        self.cache_manager_data = 'CacheManagerData'
+        self.sim_start = 'sim_start'
+        self.sim_start_val = 0.0
+        self.sim_end = 'sim_end'
+        self.sim_end_val = 0.0
+        self.sim_path = 'sim_path'
+        self.sim_path_val = ''
+
+        self.geo_cache_start = 'geo_cache_start'
+        self.geo_cache_start_val = 0.0
+        self.geo_cache_end = 'geo_cache_end'
+        self.geo_cache_end_val = 0.0
+        self.geo_cache_path = 'geo_cache_path'
+        self.geo_cache_path_val = ''
+
+        self.playblast_start = 'playblast_start'
+        self.playblast_start_val = 0.0
+        self.playblast_end = 'playblast_end'
+        self.playblast_end_val = 0.0
+        self.playblast_path = 'playblast_path'
+        self.playblast_path_val = ''
+
+        self.final_start = 'final_start'
+        self.final_start_val = 0.0
+        self.final_end = 'final_end'
+        self.final_end_val = 0.0
+        self.final_path = 'final_path'
+        self.final_path_val = ''
+
+
+
         # GET THE SIM CACHE PATH
         self.sim_cache_path, self.geo_cache_path, self.playblast_cache_path, self.final_cache_path = self.cache_manager_class.initcheck()
 
@@ -100,8 +153,19 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         # SIM TAB
         self.sim_tab_widget = self.sample_widget_template.widget_def(parent_self=tab_widget)
         sim_tab_vertical_layout = self.sample_widget_template.vertical_layout(parent_self=self.sim_tab_widget)
-        sim_tab_vertical_layout.addWidget(self.sim_tree_def())
+
+        self.sim_tree_widget = self.sample_widget_template.treeWidget()
+        # sim_tree_widget.setHeaderHidden(True)
+        header = QTreeWidgetItem(["Node", "Visibility"])
+        self.sim_tree_widget.setColumnWidth(0, 200)
+        self.sim_tree_widget.setColumnWidth(1, 10)
+        self.sim_tree_widget.setHeaderItem(header)
+        self.sim_tree_widget.itemSelectionChanged.connect(self.sim_tree_widget_def)
+
+        self.sim_tree_def()
+        sim_tab_vertical_layout.addWidget(self.sim_tree_widget)
         tab_widget.addTab(self.sim_tab_widget, 'Sim'.upper())
+
 
         # INPUT TAB
         self.input_tab_widget = self.sample_widget_template.widget_def(parent_self=tab_widget)
@@ -128,7 +192,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         cloth_nrigit_switch_widget = self.sample_widget_template.widget_def()
 
 
-        grid_layout = self.sample_widget_template.grid_layout(parent_self=cloth_nrigit_switch_widget)
+        grid_layout = self.sample_widget_template.grid_layout(parent_self=cloth_nrigit_switch_widget,
+                                                              set_spacing=5)
 
         new_value = 0
         vertical_val = 0
@@ -149,20 +214,22 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         ncloth_obj_name = self.sample_widget_template.setObjectName(ncloth_text)
         ncloth_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=ncloth_obj_name,
                                                                        color=self.color_variable_class.nCloth_color.get_value())
-        ncloth_checkbox = self.sample_widget_template.checkbox(set_text=ncloth_text,
+        self.ncloth_checkbox = self.sample_widget_template.checkbox(set_text=ncloth_text,
                                                                set_object_name=ncloth_obj_name,
-                                                               set_styleSheet=ncloth_styleSheet)
-        grid_layout.addWidget(ncloth_checkbox, vertical_val, new_value, 1, 1)
+                                                               set_styleSheet=ncloth_styleSheet, stateChanged=self.tree_checkbox_def)
+        self.ncloth_checkbox.setChecked(self.ncloth_tree_vis)
+        grid_layout.addWidget(self.ncloth_checkbox, vertical_val, new_value, 1, 1)
         new_value += 1
 
         # NRIGIT CHECKBOX
         nrigit_text = 'nRigit'
         nrigit_obj_name = self.sample_widget_template.setObjectName(nrigit_text)
         nrigit_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nrigit_obj_name, color=self.color_variable_class.nRigit_color.get_value())
-        nrigit_chekbox = self.sample_widget_template.checkbox(set_text=nrigit_text,
+        self.nrigit_chekbox = self.sample_widget_template.checkbox(set_text=nrigit_text,
                                                               set_object_name=nrigit_obj_name,
-                                                              set_styleSheet=nrigit_styleSheet)
-        grid_layout.addWidget(nrigit_chekbox, vertical_val, new_value, 1, 1)
+                                                              set_styleSheet=nrigit_styleSheet, stateChanged=self.tree_checkbox_def)
+        self.nrigit_chekbox.setChecked(self.nRigit_tree_vis)
+        grid_layout.addWidget(self.nrigit_chekbox, vertical_val, new_value, 1, 1)
         new_value += 1
 
         # NCONSTRAINT CHECKBOX
@@ -170,23 +237,42 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         nconstraint_obj_name = self.sample_widget_template.setObjectName(nconstraint_text)
         nconstraint_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nconstraint_obj_name,
                                                                             color=self.color_variable_class.nConstraint_color.get_value())
-        nconstraint_checkbox = self.sample_widget_template.checkbox(set_text=nconstraint_text,
+        self.nconstraint_checkbox = self.sample_widget_template.checkbox(set_text=nconstraint_text,
                                                                     set_object_name=nconstraint_obj_name,
-                                                                    set_styleSheet=nconstraint_styleSheet)
-        grid_layout.addWidget(nconstraint_checkbox, vertical_val, new_value, 1, 1)
+                                                                    set_styleSheet=nconstraint_styleSheet, stateChanged=self.tree_checkbox_def)
+        self.nconstraint_checkbox.setChecked(self.nConstraint_tree_vis)
+        grid_layout.addWidget(self.nconstraint_checkbox, vertical_val, new_value, 1, 1)
         new_value += 1
 
         # NHAIR CHECKBOX
         nhair_text = 'nHair'
         nhair_obj_name = self.sample_widget_template.setObjectName(nhair_text)
         nhair_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nhair_obj_name, color=self.color_variable_class.nHair_color.get_value())
-        nhair_checkbox = self.sample_widget_template.checkbox(set_text=nhair_text,
+        self.nhair_checkbox = self.sample_widget_template.checkbox(set_text=nhair_text,
                                                               set_object_name=nhair_obj_name,
-                                                              set_styleSheet=nhair_styleSheet)
-        grid_layout.addWidget(nhair_checkbox, vertical_val, new_value, 1, 1)
-        vertical_val += 1
-        new_value = 0
+                                                              set_styleSheet=nhair_styleSheet, stateChanged=self.tree_checkbox_def)
+        self.nhair_checkbox.setChecked(self.nhair_tree_vis)
+        grid_layout.addWidget(self.nhair_checkbox, vertical_val, new_value, 1, 1)
+        new_value += 1
 
+        # NHAIR CHECKBOX
+        folical_text = 'follicle'
+        folical_obj_name = self.sample_widget_template.setObjectName(folical_text)
+        folical_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=folical_obj_name,
+                                                                      color=self.color_variable_class.folical_color.get_value())
+        self.folicle_checkbox = self.sample_widget_template.checkbox(set_text=folical_text,
+                                                                   set_object_name=folical_obj_name,
+                                                                   set_styleSheet=folical_styleSheet,
+                                                                   stateChanged=self.tree_checkbox_def)
+        self.folicle_checkbox.setChecked(self.follicle1_tree_vis)
+        self.nhair_checkbox.setChecked(self.nhair_tree_vis)
+        grid_layout.addWidget(self.folicle_checkbox, vertical_val, new_value, 1, 1)
+        new_value += 1
+
+
+
+
+        '''
         # SELECT LABEL
         select_text = 'Select : '
         select_object = self.sample_widget_template.setObjectName('Select_Object')
@@ -202,34 +288,35 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         ncloth_node_text = 'nCloth Node'
         ncloth_node_object = self.sample_widget_template.setObjectName(ncloth_node_text)
         ncloth_node_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=ncloth_node_object,
-                                                                            color=self.color_variable_class.blue_color.get_value())
-        ncloth_node_checkbox = self.sample_widget_template.checkbox(set_text=ncloth_node_text,
-                                                                    set_object_name=ncloth_obj_name,
-                                                                    set_styleSheet=ncloth_node_styleSheet)
-        grid_layout.addWidget(ncloth_node_checkbox, vertical_val, new_value, 1, 1)
+                                                                            color = self.color_variable_class.nCloth_color.get_value())
+        ncloth_node_pushButton = self.sample_widget_template.pushButton(set_text=ncloth_node_text,
+                                                                        set_object_name=ncloth_node_object,
+                                                                        set_styleSheet=ncloth_node_styleSheet,
+                                                                        connect=self.ncloth_node_pushButton_def)
+        grid_layout.addWidget(ncloth_node_pushButton, vertical_val, new_value, 1, 1)
         new_value += 1
 
         # NCLLOTH MESH CHECKBOX
         ncloth_mesh_text = 'nCloth Mesh'
         ncloth_mesh_object = self.sample_widget_template.setObjectName(ncloth_mesh_text)
-        ncloth_mesh_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=ncloth_mesh_object, color=self.color_variable_class.violet_color.get_value())
-        ncloth_mesh_checkbox = self.sample_widget_template.checkbox(set_text=ncloth_mesh_text,
-                                                                    set_object_name=ncloth_mesh_object,
-                                                                    set_styleSheet=ncloth_mesh_styleSheet)
-        grid_layout.addWidget(ncloth_mesh_checkbox, vertical_val, new_value, 1, 1)
+        ncloth_mesh_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=ncloth_mesh_object, color=self.color_variable_class.nCloth_color.get_value())
+        ncloth_mesh_pushButton = self.sample_widget_template.pushButton(set_text=ncloth_mesh_text,
+                                                                        set_object_name=ncloth_mesh_object,
+                                                                        set_styleSheet=ncloth_mesh_styleSheet)
+        grid_layout.addWidget(ncloth_mesh_pushButton, vertical_val, new_value, 1, 1)
         new_value += 1
 
         # NHAIR NODE CHCKBOXn
         nhair_node_text = 'nHair Node'
         nhair_node_object = self.sample_widget_template.setObjectName(nhair_node_text)
         nhair_node_styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nhair_node_object,
-                                                                           color=self.color_variable_class.lime_color.get_value())
-        nhair_node_checkbox = self.sample_widget_template.checkbox(set_text=nhair_node_text,
+                                                                           color=self.color_variable_class.nHair_color.get_value())
+        nhair_node_checkbox = self.sample_widget_template.pushButton(set_text=nhair_node_text,
                                                                    set_object_name=nhair_node_object,
                                                                    set_styleSheet=nhair_node_styleSheet)
         grid_layout.addWidget(nhair_node_checkbox, vertical_val, new_value, 1, 1)
         new_value += 1
-
+        '''
         return cloth_nrigit_switch_widget
 
     def cloth_button_widget(self):
@@ -262,8 +349,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         ncloth_cache_text = 'nCloth Cache'
         icon_ = 'nClothCache.webp'
         icon_path = cacheManagerIconPath + icon_
-        print(icon_path)
-        ncloth_cache_button  = self.sample_widget_template.pushButton(set_text=ncloth_cache_text,
+        ncloth_cache_button = self.sample_widget_template.pushButton(set_text=ncloth_cache_text,
                                                                       max_size=[self.sample_widget_template.max_size, button_height],
                                                                       set_icon=icon_path,
                                                                       set_icon_size=[self.icon_size, self.icon_size],
@@ -283,7 +369,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         #GEO CACHE BUTTON
         geo_cache_text = 'Geo Cache'
-        #"C:\Users\Admin\Desktop\Nikheel\Spark_Project\Spark_\spark\widget\common_widget\cacheManager_icon\geometry_Cache.png"
         icon_ = 'geometry_Cache.png'
         icon_path = cacheManagerIconPath + icon_
         geo_cache_button = self.sample_widget_template.pushButton(set_text=geo_cache_text,
@@ -305,7 +390,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         #PLABLAST BUTTON
         playblast_button_text = 'Playblast'
-        #"C:\Users\Admin\Desktop\Nikheel\Spark_Project\Spark_\spark\widget\common_widget\cacheManager_icon\PlayBlast.png"
         icon_ = 'PlayBlast.png'
         icon_path = cacheManagerIconPath + icon_
         playblast_button = self.sample_widget_template.pushButton(set_text=playblast_button_text,
@@ -316,7 +400,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         # FINCAL CACHE BUTTON
         final_cache_button_text = 'Final Cache'
-        #"C:\Users\Admin\Desktop\Nikheel\Spark_Project\Spark_\spark\widget\common_widget\cacheManager_icon\Final.png"
         icon_ = 'Final.png'
         icon_path = cacheManagerIconPath + icon_
         final_cache_button = self.sample_widget_template.pushButton(set_text=final_cache_button_text,
@@ -327,6 +410,45 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
 
         return cloth_button_widget
+
+    def cache_manager_data(self):
+        self.cache_manager_data = 'CacheManagerData'
+        self.sim_start = 'sim_start'
+        self.sim_start_val = 0.0
+        self.sim_end = 'sim_end'
+        self.sim_end_val = 0.0
+        self.sim_path = 'sim_path'
+        self.sim_path_val = ''
+
+        self.geo_cache_start = 'geo_cache_start'
+        self.geo_cache_start_val = 0.0
+        self.geo_cache_end = 'geo_cache_end'
+        self.geo_cache_end_val = 0.0
+        self.geo_cache_path = 'geo_cache_path'
+        self.geo_cache_path_val = ''
+
+        self.playblast_start = 'playblast_start'
+        self.playblast_start_val = 0.0
+        self.playblast_end = 'playblast_end'
+        self.playblast_end_val = 0.0
+        self.playblast_path = 'playblast_path'
+        self.playblast_path_val = ''
+
+        self.final_start = 'final_start'
+        self.final_start_val = 0.0
+        self.final_end = 'final_end'
+        self.final_end_val = 0.0
+        self.final_path = 'final_path'
+        self.final_path_val = ''
+
+        if not cmds.objExists(self.cache_manager_data):
+            cmds.createNode('transform', n=self.cache_manager_data)
+            cmds.setAttr(self.cache_manager_data + ".hideOnPlayback", 1)
+
+            #NOW CREATEA A ATTRIBUTE
+            self.attribute_class.add_attr()
+
+
 
     def cache_playblast_history_widget(self):
         '''
@@ -526,12 +648,17 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.cache_path_lineedit.textChanged.connect(self.cache_path_lineedit_def)
         horizontal_layout.addWidget(self.cache_path_lineedit)
 
+        cache_path_button = self.sample_widget_template.pushButton(set_text='...',
+                                                                   connect=self.cache_path_button_def)
+        horizontal_layout.addWidget(cache_path_button)
+
         #####################################
         #REPLAVE CACHE
         replace_cache_widget = self.sample_widget_template.widget_def()
         vertical_laout.addWidget(replace_cache_widget)
         replace_vertical_layout = self.sample_widget_template.vertical_layout(parent_self=replace_cache_widget)
 
+        '''
         replace_chekbox_text = 'Replace Cache'
         replace_chekbox_object = self.sample_widget_template.setObjectName(replace_chekbox_text)
         replace_checkbox_setStyleSheet = self.sample_widget_template.styleSheet_def(obj_name=replace_chekbox_object,
@@ -541,7 +668,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                                                                 set_styleSheet=replace_checkbox_setStyleSheet)
         self.replace_checkbox.setChecked(True)
         replace_vertical_layout.addWidget(self.replace_checkbox)
-
+        '''
         ####################################
         #LIST WIDGET
         self.sim_cache_list_widget = self.sample_widget_template.list_widget()
@@ -743,38 +870,186 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         return widget
 
+    def tree_on_off_icon_color(self, value):
+        if value == 0:
+            icon_path = self.off_icon_path
+            styleSheet_color = self.color_variable_class.red_color.get_value()
+        else:
+            icon_path = self.on_icon_path
+            styleSheet_color = self.color_variable_class.green_color.get_value()
+
+        return icon_path, styleSheet_color
+
     def sim_tree_def(self):
         '''
 
         :return:
         '''
-        sim_tree_widget = self.sample_widget_template.treeWidget()
-
-        #now get the list of the object
+        self.sim_tree_widget_item['nCloth'] = []
         cfx_list = self.cache_manager_class.get_cfx_list()
-        for each in cfx_list:
-            parent = QTreeWidgetItem(sim_tree_widget)
-            parent.setText(0, each)
-            parent.setFlags(parent.flags() | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
-            #NCLOTH
-            if cfx_list[each]['nCloth']:
-                for each_nCloth in cfx_list[each]['nCloth']:
-                    ncloth_item = QTreeWidgetItem(parent)
-                    ncloth_item.setText(0, each_nCloth)
-                    ncloth_item.setForeground(0, QBrush(QColor("#123456")))
+        for each_cfx_list in cfx_list:
 
-            if cfx_list[each]['dynamicConstraint']:
-                for each_nConstraint in cfx_list[each]['dynamicConstraint']:
-                    nConstraint_item = QTreeWidgetItem(parent)
-                    nConstraint_item.setText(0, each_nConstraint)
-
-            if cfx_list[each]['nRigid']:
-                for each_nRigit in cfx_list[each]['nRigid']:
-                    nRigit_item = QTreeWidgetItem(parent)
-                    nRigit_item.setText(0, each_nRigit)
+            nucleus = QTreeWidgetItem(self.sim_tree_widget)
+            nucleus.setText(0, each_cfx_list)
+            #setForeground(0, QtGui.QBrush(Qt.green))
+            nucleus.setForeground(0, QBrush(QColor(self.color_variable_class.green_color.get_value()[0],
+                                                   self.color_variable_class.green_color.get_value()[1],
+                                                   self.color_variable_class.green_color.get_value()[2])))
 
 
-        return sim_tree_widget
+
+
+            nucleus_set_obj = each_cfx_list + '_Object'
+            icon_path, styleSheet_color = self.tree_on_off_icon_color(cmds.getAttr(each_cfx_list + '.enable'))
+            styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nucleus_set_obj,
+                                                                    background_color=styleSheet_color)
+            nucleus_button = self.sample_widget_template.pushButton(set_icon=icon_path,
+                                                                    set_icon_size=[20, 20],
+                                                                    set_styleSheet=styleSheet,
+                                                                    set_object_name=nucleus_set_obj)
+            self.sim_tree_widget.setItemWidget(nucleus, 1, nucleus_button)
+
+            #CHECK THE NCLOTH
+            if self.ncloth_tree_vis:
+                if cfx_list[each_cfx_list]['nCloth']:
+                    for each_nCloth in cfx_list[each_cfx_list]['nCloth']:
+
+                        ncloth_item = QTreeWidgetItem(nucleus)
+                        ncloth_item.setText(0, each_nCloth)
+                        ncloth_item.setForeground(0, QBrush(QColor(self.color_variable_class.nCloth_color.get_value()[0],
+                                                                   self.color_variable_class.nCloth_color.get_value()[1],
+                                                                   self.color_variable_class.nCloth_color.get_value()[2])))
+                        self.ncloth_tree_widget_item.append(ncloth_item)
+
+                        icon_ = 'ncloth.svg'
+                        icon_path = rigfxIconPath_ + icon_
+                        icon = QIcon()
+                        icon.addPixmap(QPixmap(icon_path), QIcon.Normal, QIcon.Off)
+                        ncloth_item.setIcon(0, icon)
+
+                        ncloth_set_obj = each_nCloth + '_Object'
+                        icon_path, styleSheet_color = self.tree_on_off_icon_color(cmds.getAttr(each_nCloth + '.isDynamic'))
+                        styleSheet = self.sample_widget_template.styleSheet_def(obj_name=ncloth_set_obj,
+                                                                                background_color=styleSheet_color)
+                        ncloth_button = self.sample_widget_template.pushButton(set_icon=icon_path,
+                                                                                set_icon_size=[20, 20],
+                                                                                set_styleSheet=styleSheet,
+                                                                                set_object_name=ncloth_set_obj)
+                        self.sim_tree_widget.setItemWidget(ncloth_item, 1, ncloth_button)
+
+            if self.nConstraint_tree_vis:
+                if cfx_list[each_cfx_list]['dynamicConstraint']:
+                    for each_dynamicConstraint in cfx_list[each_cfx_list]['dynamicConstraint']:
+                        shape = cmds.listRelatives(each_dynamicConstraint, s=True)[0]
+                        dynamicConstraint_item = QTreeWidgetItem(nucleus)
+                        dynamicConstraint_item.setForeground(0, QBrush(QColor(self.color_variable_class.nConstraint_color.get_value()[0],
+                                                                              self.color_variable_class.nConstraint_color.get_value()[1],
+                                                                              self.color_variable_class.nConstraint_color.get_value()[2])))
+                        #"C:\Users\Admin\Desktop\Nikheel\Spark_Project\Spark_\spark\widget\common_widget\rigFX_icon\out_dynamicConstraint.png"
+                        icon_ = 'out_dynamicConstraint.png'
+                        icon_path = rigfxIconPath_ + icon_
+                        icon = QIcon()
+                        icon.addPixmap(QPixmap(icon_path), QIcon.Normal, QIcon.Off)
+                        dynamicConstraint_item.setIcon(0, icon)
+
+                        dynamicConstraint_item.setText(0, each_dynamicConstraint)
+                        dynamicConstraint_set_obj = each_dynamicConstraint + '_Object'
+                        icon_path, styleSheet_color = self.tree_on_off_icon_color(cmds.getAttr(each_dynamicConstraint + '.enable'))
+                        styleSheet = self.sample_widget_template.styleSheet_def(obj_name=dynamicConstraint_set_obj,
+                                                                                background_color=styleSheet_color)
+                        dynamicConstraint_button = self.sample_widget_template.pushButton(set_icon=icon_path,
+                                                                                set_icon_size=[20, 20],
+                                                                                set_styleSheet=styleSheet,
+                                                                                set_object_name=dynamicConstraint_set_obj)
+                        self.sim_tree_widget.setItemWidget(dynamicConstraint_item, 1, dynamicConstraint_button)
+
+            if self.nRigit_tree_vis:
+                if cfx_list[each_cfx_list]['nRigid']:
+                    for each_nRigid in cfx_list[each_cfx_list]['nRigid']:
+                        nRigid_item = QTreeWidgetItem(nucleus)
+                        nRigid_item.setText(0, each_nRigid)
+                        nRigid_item.setForeground(0, QBrush(QColor(self.color_variable_class.nRigit_color.get_value()[0],
+                                                                   self.color_variable_class.nRigit_color.get_value()[1],
+                                                                   self.color_variable_class.nRigit_color.get_value()[2])))
+                        icon_ = 'nRigid1.svg'
+                        icon_path = rigfxIconPath_ + icon_
+                        icon = QIcon()
+                        icon.addPixmap(QPixmap(icon_path), QIcon.Normal, QIcon.Off)
+                        nRigid_item.setIcon(0, icon)
+
+
+                        nRigid_set_obj = each_nRigid + '_Object'
+                        icon_path, styleSheet_color = self.tree_on_off_icon_color(cmds.getAttr(each_nRigid + '.isDynamic'))
+                        styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nRigid_set_obj,
+                                                                                background_color=styleSheet_color)
+                        nRigid_button = self.sample_widget_template.pushButton(set_icon=icon_path,
+                                                                                set_icon_size=[20, 20],
+                                                                                set_styleSheet=styleSheet,
+                                                                                set_object_name=nRigid_set_obj)
+                        self.sim_tree_widget.setItemWidget(nRigid_item, 1, nRigid_button)
+
+            if self.nhair_tree_vis:
+                if cfx_list[each_cfx_list]['hairSystem']:
+                    for each_hairSystem in cfx_list[each_cfx_list]['hairSystem']:
+                        hairSystem_item = QTreeWidgetItem(nucleus)
+                        hairSystem_item.setText(0, each_hairSystem)
+                        hairSystem_item.setForeground(0, QBrush(QColor(self.color_variable_class.nHair_color.get_value()[0],
+                                                                   self.color_variable_class.nHair_color.get_value()[1],
+                                                                   self.color_variable_class.nHair_color.get_value()[2])))
+                        icon_ = 'hairSystem1.svg'
+                        icon_path = rigfxIconPath_ + icon_
+                        icon = QIcon()
+                        icon.addPixmap(QPixmap(icon_path), QIcon.Normal, QIcon.Off)
+                        hairSystem_item.setIcon(0, icon)
+
+
+                        if cmds.getAttr(each_hairSystem + '.simulationMethod') == 0:
+                            value = 0
+                        else:
+                            value = 1
+
+                        hairSystem_set_obj = each_hairSystem + '_Object'
+                        icon_path, styleSheet_color = self.tree_on_off_icon_color(value)
+                        styleSheet = self.sample_widget_template.styleSheet_def(obj_name=hairSystem_set_obj,
+                                                                                background_color=styleSheet_color)
+                        hairSystem_button = self.sample_widget_template.pushButton(set_icon=icon_path,
+                                                                                set_icon_size=[20, 20],
+                                                                                set_styleSheet=styleSheet,
+                                                                                set_object_name=hairSystem_set_obj)
+                        self.sim_tree_widget.setItemWidget(hairSystem_item, 1, hairSystem_button)
+
+                        #SET THE FOLLICLE
+                        if self.follicle1_tree_vis:
+                            hairsystem_shape = cmds.listRelatives(each_hairSystem, s=True)[0]
+                            follicle_list = list(set(cmds.listConnections(hairsystem_shape, type='follicle')))
+                            for each_follicle in follicle_list:
+                                follicle_item = QTreeWidgetItem(hairSystem_item)
+                                follicle_item.setText(0, each_follicle)
+                                follicle_item.setForeground(0, QBrush(QColor(self.color_variable_class.folical_color.get_value()[0],
+                                                                             self.color_variable_class.folical_color.get_value()[1],
+                                                                         self.color_variable_class.folical_color.get_value()[2])))
+                        hairSystem_item.setExpanded(True)
+            nucleus.setExpanded(True)
+
+    def sim_tree_widget_def(self):
+        '''
+        select the object
+        :return:
+        '''
+        getSelected = self.sim_tree_widget.selectedItems()
+        obj = []
+        if getSelected:
+            a = 0
+            for each in getSelected:
+                baseNode = getSelected[a]
+                getChildNode = baseNode.text(0)
+                if cmds.objExists(getChildNode):
+                    obj.append(getChildNode)
+                a+=1
+        if obj:
+            cmds.select(obj)
+
+
 
     def input_list_def(self):
         '''
@@ -801,7 +1076,69 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         :return:
         '''
+        print('nCloth will cache')
+        #GET ALL THE CLOTH
+        # GET CACHE IS GOING TO REPLACE OR NOT
+        if self.select_ncloth_node_checkbox.isChecked():
+            nCloth = cmds.ls(type='nCloth')
+            sel_ncloth = []
+            for each in nCloth:
+                sel_ncloth.append(cmds.listRelatives(each, p=True)[0])
 
+        else:
+            selected_val = True
+            sel_ncloth = cmds.ls(sl=True)
+            for each in sel_ncloth:
+                shape = cmds.listRelatives(each, s=True)
+                if cmds.objectType(shape) != 'nCloth':
+                    sel_ncloth.remove(each)
+
+
+        attr_list = {}
+        start_val = float(self.sim_start_time_lineedit.text())
+        end_val = float(self.sim_end_time_lineedit.text())
+        attr_list['Comments'] = self.comments_plain_text_edit.toPlainText()
+        sim_path = self.cache_path_lineedit.text()
+
+        nucleus = cmds.ls(type='nucleus')
+
+        #NCLOTH
+        nCloth = cmds.ls(type='nCloth')
+
+        #NRIGIT
+        nRigid = cmds.ls(type='nRigid')
+
+        #NCONSTRAINT
+        dynamicConstraint = cmds.ls(type='dynamicConstraint')
+
+        #nHair
+        hairSystem = cmds.ls(type='hairSystem')
+
+        #folicle
+        follicle = cmds.ls(type='follicle')
+
+        for each_object in [nucleus, nCloth, nRigid, dynamicConstraint, hairSystem, follicle]:
+            if each_object:
+                for each_subObject in each_object:
+                    attr_list[each_subObject] = self.attribute_class.get_all_attr_val(each_subObject)
+
+        print('this is the ncloth: ', sel_ncloth)
+        print('this is the Start Frame: ', start_val)
+        print('this is the end Frame: ', end_val)
+        print('this is the simPath: ', sim_path)
+        print('this is the attr_list: ', attr_list)
+
+
+        self.cache_manager_class.ncloth_cache_def(ncloth_list=sel_ncloth,
+                                                  start_val=start_val,
+                                                  end_val=end_val,
+                                                  sim_path=sim_path,
+                                                  attr_list=attr_list)
+
+        self.update_sim_cache_listwidget()
+
+
+        '''
         #GET CACHE IS GOING TO REPLACE OR NOT
         if self.replace_checkbox.isChecked():
             replace_val = True
@@ -825,6 +1162,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
 
         self.update_sim_cache_listwidget()
+        '''
 
     def sim_cache_list_widget_def(self):
         '''
@@ -869,7 +1207,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         :return:
         '''
         #UPDATE THE TEXT EDIT FILE
-        self.comments_plain_text_edit.setPlainText(json_data['Notes'])
+        self.notes_plainTextEdit.setPlainText(json_data['Comments'])
 
 
     def cache_path_lineedit_def(self):
@@ -909,7 +1247,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         '''
 
         # GET CACHE IS GOING TO REPLACE OR NOT
-        if self.replace_checkbox.isChecked():
+        if self.select_ncloth_node_checkbox.isChecked():
             self.cache_manager_class.delete_ncloth_cache(selected=True)
         else:
             self.cache_manager_class.delete_ncloth_cache(selected=False)
@@ -996,5 +1334,34 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         json_path = self.geo_cache_path + '/' + name + '.json'
         with open(json_path, 'w') as f:
             json.dump(attr_list_val, f)
+
+    def tree_checkbox_def(self):
+        '''
+
+        :return:
+        '''
+        self.ncloth_tree_vis = self.ncloth_checkbox.isChecked()
+        self.nRigit_tree_vis = self.nrigit_chekbox.isChecked()
+        self.nConstraint_tree_vis = self.nconstraint_checkbox.isChecked()
+        self.nhair_tree_vis = self.nhair_checkbox.isChecked()
+        self.follicle1_tree_vis = self.folicle_checkbox.isChecked()
+
+        self.sim_tree_widget.clear()
+        self.sim_tree_def()
+
+    def cache_path_button_def(self):
+        '''
+
+        :return:
+        '''
+        get_lineedit = self.sim_cache_path
+        new_path = 'C:\Users\Admin\Documents\maya\projects\default\data\simCache'
+        _audio_file = QFileDialog.getOpenFileName(self, "Audio File",
+                                                             get_lineedit, '*')
+        #folderpath = QFileDialog.getExistingDirectory(self, 'Select Folder')
+        print(_audio_file)
+
+
+
 
 
