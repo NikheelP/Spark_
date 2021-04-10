@@ -1,3 +1,5 @@
+import os
+
 import pymel.core as pml
 
 
@@ -64,7 +66,7 @@ class RIVET:
             pml.connectAttr(parts[0].node().worldSpace, posi.inputSurface)
 
         else:
-            io.error("Select either 2 edges for a mesh or 1 surface point for a nurbs object")
+            os.error("Select either 2 edges for a mesh or 1 surface point for a nurbs object")
             return None
 
         locTrans = pml.createNode("transform", n=name)

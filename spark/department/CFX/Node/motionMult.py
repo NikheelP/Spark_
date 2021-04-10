@@ -13,8 +13,8 @@ from spark.department.Help.Math_help import MATHUTIL_HELP
 class MOTIONMULT(OpenMayaMPx.MPxNode):
     kPluginNodeId = OpenMaya.MTypeId(0x00047253)
     mInputDriver = OpenMaya.MObject()
-    output_t = OpenMaya.MObject()
-    output_r = OpenMaya.MObject()
+    input_grp_t = OpenMaya.MObject()
+    output_grp_t = OpenMaya.MObject()
     valuetrans = OpenMaya.MObject()
     valuerot = OpenMaya.MObject()
     rOutput = OpenMaya.MObject()
@@ -87,15 +87,33 @@ class MOTIONMULT(OpenMayaMPx.MPxNode):
     def compute(self, plug, data):
 
         input_one_trans_val = data.inputValue(MOTIONMULT.input_one_t).asFloat3()
-        input_two_trans_val = data.inputValue(MOTIONMULT.input_two_t).asFloat3()
         trans_blend_val = data.inputValue(MOTIONMULT.t_blend).asFloat()
 
-        input_one_rot_val = data.inputValue(MOTIONMULT.input_one_r).asFloat3()
-        input_two_rot_val = data.inputValue(MOTIONMULT.input_two_r).asFloat3()
-        rot_blend_val = data.inputValue(MOTIONMULT.r_blend).asFloat()
+        input_grp_t_Output = data.outputValue(MOTIONMULT.input_grp_t)
+        output_grp_t_Output = data.outputValue(MOTIONMULT.output_grp_t)
 
-        tOutput = data.outputValue(MOTIONMULT.output_t)
-        rOutput = data.outputValue(MOTIONMULT.output_r)
+        #SET_INPUT_GRP_VAL
+        input_pos = []
+        for each in input_one_trans_val:
+            pos_val = each * -1
+            pos_val = pos_val * trans_blend_val
+            input_pos.append(pos_val)
+
+        #SET OUTPUT GRP_VAL
+        output_pos = []
+        for each in input_one_trans_val:
+            pos_val = each * trans_blend_val
+            output_pos.append(pos_val)
+
+        input_grp_t = OpenMaya.MFloatVector(input_pos[0], input_pos[1], input_pos[2])
+        input_grp_t_Output.setMFloatVector(input_grp_t)
+
+        output_grp_t = OpenMaya.MFloatVector(output_pos[0], output_pos[1], output_pos[2])
+        output_grp_t_Output.setMFloatVector(output_grp_t)
+
+
+
+        '''
 
         average_trans_val = self.math_class.averagePosition(input_one_trans_val, input_two_trans_val, trans_blend_val)
         average_rot_val = self.math_class.averagePosition(input_one_rot_val, input_two_rot_val, rot_blend_val)
@@ -105,6 +123,7 @@ class MOTIONMULT(OpenMayaMPx.MPxNode):
 
         r_vector = OpenMaya.MFloatVector(average_rot_val[0], average_rot_val[1], average_rot_val[2])
         rOutput.setMFloatVector(r_vector)
+        '''
 
 
 
@@ -155,13 +174,7 @@ def initialize():
     nAttr.setReadable(True)
     nAttr.setKeyable(True)
 
-    MOTIONMULT.input_two_t = nAttr.createPoint("inputTwoTrans", "iwt")
-    nAttr.setWritable(True)
-    nAttr.setStorable(True)
-    nAttr.setReadable(True)
-    nAttr.setKeyable(True)
-
-    MOTIONMULT.t_blend = nAttr.create('tBlend', 'tbl', OpenMaya.MFnNumericData.kFloat, 0)
+    MOTIONMULT.t_blend = nAttr.create('tBlend', 'tbl', OpenMaya.MFnNumericData.kFloat, 1)
     nAttr.setWritable(True)
     nAttr.setStorable(True)
     nAttr.setReadable(True)
@@ -169,37 +182,22 @@ def initialize():
     nAttr.setMax(1)
     nAttr.setKeyable(True)
 
-    MOTIONMULT.input_one_r = nAttr.createPoint("inputOneRot", "ior")
-    nAttr.setWritable(True)
-    nAttr.setStorable(True)
-    nAttr.setReadable(True)
-    nAttr.setKeyable(True)
 
-    MOTIONMULT.input_two_r = nAttr.createPoint("inputTwoRot", "iwr")
-    nAttr.setWritable(True)
-    nAttr.setStorable(True)
-    nAttr.setReadable(True)
-    nAttr.setKeyable(True)
 
-    MOTIONMULT.r_blend = nAttr.create('rBlend', 'rbl', OpenMaya.MFnNumericData.kFloat, 0)
-    nAttr.setWritable(True)
-    nAttr.setStorable(True)
-    nAttr.setReadable(True)
-    nAttr.setMin(0)
-    nAttr.setMax(1)
-    nAttr.setKeyable(True)
-
-    MOTIONMULT.output_t = nAttr.createPoint("translate", "t")
+    MOTIONMULT.input_grp_t = nAttr.createPoint("inputTrans", "it")
     nAttr.setWritable(True)
     nAttr.setStorable(True)
     nAttr.setReadable(True)
     #nAttr.setKeyable(True)
 
-    MOTIONMULT.output_r = nAttr.createPoint("rotate", "r")
+    MOTIONMULT.output_grp_t = nAttr.createPoint("outputTrans", "ot")
     nAttr.setWritable(True)
     nAttr.setStorable(True)
     nAttr.setReadable(True)
-    #nAttr.setKeyable(True)
+    # nAttr.setKeyable(True)
+
+
+
 
 
     '''
@@ -247,21 +245,24 @@ def initialize():
     '''
 
     MOTIONMULT.addAttribute(MOTIONMULT.input_one_t)
-    MOTIONMULT.addAttribute(MOTIONMULT.input_two_t)
     MOTIONMULT.addAttribute(MOTIONMULT.t_blend)
-    MOTIONMULT.addAttribute(MOTIONMULT.input_one_r)
-    MOTIONMULT.addAttribute(MOTIONMULT.input_two_r)
-    MOTIONMULT.addAttribute(MOTIONMULT.r_blend)
-    MOTIONMULT.addAttribute(MOTIONMULT.output_t)
-    MOTIONMULT.addAttribute(MOTIONMULT.output_r)
+    MOTIONMULT.addAttribute(MOTIONMULT.input_grp_t)
+    MOTIONMULT.addAttribute(MOTIONMULT.output_grp_t)
 
-    MOTIONMULT.attributeAffects(MOTIONMULT.input_one_t, MOTIONMULT.output_t)
-    MOTIONMULT.attributeAffects(MOTIONMULT.input_two_t, MOTIONMULT.output_t)
-    MOTIONMULT.attributeAffects(MOTIONMULT.t_blend, MOTIONMULT.output_t)
 
-    MOTIONMULT.attributeAffects(MOTIONMULT.input_one_r, MOTIONMULT.output_r)
-    MOTIONMULT.attributeAffects(MOTIONMULT.input_two_r, MOTIONMULT.output_r)
-    MOTIONMULT.attributeAffects(MOTIONMULT.r_blend, MOTIONMULT.output_r)
+
+
+    MOTIONMULT.attributeAffects(MOTIONMULT.input_one_t, MOTIONMULT.input_grp_t)
+    MOTIONMULT.attributeAffects(MOTIONMULT.input_one_t, MOTIONMULT.output_grp_t)
+    MOTIONMULT.attributeAffects(MOTIONMULT.t_blend, MOTIONMULT.input_grp_t)
+    MOTIONMULT.attributeAffects(MOTIONMULT.t_blend, MOTIONMULT.output_grp_t)
+
+
+
+
+    #MOTIONMULT.attributeAffects(MOTIONMULT.input_one_r, MOTIONMULT.output_r)
+    #MOTIONMULT.attributeAffects(MOTIONMULT.input_two_r, MOTIONMULT.output_r)
+    #MOTIONMULT.attributeAffects(MOTIONMULT.r_blend, MOTIONMULT.output_r)
 
     '''
     MOTIONMULT.addAttribute(MOTIONMULT.mInputDriver)

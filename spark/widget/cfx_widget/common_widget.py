@@ -187,6 +187,16 @@ class COMMON_WIDGET():
         reload(node_create)
         node_create.motionMult()
 
+        #OPEN THE UI
+        from spark.widget.common_widget import motionMult_widget
+        reload(motionMult_widget)
+        from spark.widget.common_widget.motionMult_widget import MOTIONMULT_WIDGET
+
+        motion_mult = MOTIONMULT_WIDGET()
+        motion_mult.show()
+
+
+
     def rename_button_def(self):
         '''
 
