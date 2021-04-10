@@ -15,7 +15,7 @@ from spark.widget.sample.sample_color_variable import COLOR_VARIABLE
 class CACHEMANAGER:
 
     def __init__(self):
-        self.sim_cache_path, self.geo_cache_path, self.playblast_cache_path, self.final_cache_path = self.initcheck()
+        self.sim_cache_path, self.geo_cache_path, self.playblast_cache_path, self.final_cache_path, self.manual_cache_path = self.initcheck()
         self.color_variable_class = COLOR_VARIABLE()
 
     def get_nucleus_start_frame(self):
@@ -355,11 +355,12 @@ class CACHEMANAGER:
             geo_cache_dir = filepath + '/data/geoCache'
             playblast_cache_dir = filepath + '/data/PlayBlast'
             final_cache_dir = filepath + '/data/FinalCache'
+            manual_cache_dir = filepath + '/data/ManulCache'
 
             if not os.path.exists(filepath + '/data'):
                 os.mkdir(filepath + '/data')
 
-            for each in [sim_cache_dir, geo_cache_dir, playblast_cache_dir, final_cache_dir]:
+            for each in [sim_cache_dir, geo_cache_dir, playblast_cache_dir, final_cache_dir, manual_cache_dir]:
                 if not os.path.exists(each):
                     os.mkdir(each)
 
@@ -367,7 +368,7 @@ class CACHEMANAGER:
 
 
 
-            return sim_cache_dir, geo_cache_dir, playblast_cache_dir, final_cache_dir
+            return sim_cache_dir, geo_cache_dir, playblast_cache_dir, final_cache_dir, manual_cache_dir
 
 
 

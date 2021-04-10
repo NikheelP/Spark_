@@ -686,7 +686,6 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         vericalLayout.addWidget(update_or_create_layer)
 
         '''
-        
         #IMPORT CLOTH RIG
         import_cloth_rig_button_text = 'Improt Cloth Rig'
         import_cloth_rig_button = self.sample_widget_template.pushButton(set_text=import_cloth_rig_button_text)

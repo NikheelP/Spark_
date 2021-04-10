@@ -41,6 +41,7 @@ class SAMPLE_WIDGET_TEMPLATE():
         #WIDGET SET OBJECT NAME
         widget.setObjectName(set_object_name)
 
+
         #SET MAX AND MIN SIZE
         if max_size[0] > 16777215:
             max_size[0] = 16777215

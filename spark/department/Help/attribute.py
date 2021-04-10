@@ -13,7 +13,7 @@ class ATTRIBUTE:
 
 
 
-    def add_attr(self, obj, attribute_type, attribute_name='sample', min_val=0, max_val=999999999, default_val=0, enumlist=[]):
+    def add_attr(self, obj, attribute_type, attribute_name='sample', min_val=-999999999, max_val=999999999, default_val=0, enumlist=[]):
         '''
         ADD ATTRIBUTE VALYE
         :param obj: SPECIFY THE OBJECT TO ADD ATTRIBUTE
@@ -34,30 +34,41 @@ class ATTRIBUTE:
             cmds.addAttr(obj, ln=attribute_name + 'X', at=self.float)
             cmds.addAttr(obj, ln=attribute_name + 'Y', at=self.float)
             cmds.addAttr(obj, ln=attribute_name + 'Z', at=self.float)
-
+            cmds.setAttr(obj + '.' + attribute_name, k=True, e=True)
 
 
             print('vector will work')
 
         elif attribute_type == self.integer:
             attribute_type_val = True
-            print('int')
+            cmds.addAttr(obj, ln=attribute_name, at='long', min=min_val, max=max_val, dv=default_val)
+            cmds.setAttr(obj + '.' + attribute_name, k=True, e=True)
 
         elif attribute_type == self.string:
             attribute_type_val = True
-            print('string')
+            cmds.addAttr(obj, ln=attribute_name, dt='string')
+            cmds.setAttr(obj + '.' + attribute_name, k=True, e=True)
 
         elif attribute_type == self.float:
             attribute_type_val = True
-            print(self.float)
+            cmds.addAttr(obj, ln=attribute_name, at='double', min=min_val, max=max_val, dv=default_val)
+            cmds.setAttr(obj + '.' + attribute_name, k=True, e=True)
 
         elif attribute_type == self.boolean:
             attribute_type_val = True
             print(self.boolean)
+            cmds.addAttr(obj, ln=attribute_name, at='bool', min=min_val, max=max_val, dv=default_val)
+            cmds.setAttr(obj + '.' + attribute_name, k=True, e=True)
 
         elif attribute_type == self.enum:
             attribute_type_val = True
             print(self.enum)
+            middle_ = ''
+            for each_enumlist in enumlist:
+                middle_ += each_enumlist + ':'
+            cmds.addAttr(obj, ln=attribute_name, at='enum', en=middle_)
+            cmds.setAttr(obj + '.' + attribute_name, k=True, e=True)
+
 
         else:
             print('NONE OF THE ATTRIBUTE IS SPECIFIED WITH : ', self.vector, self.integer, self.string, self.float, self.boolean, self.enum)
