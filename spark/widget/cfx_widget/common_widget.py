@@ -276,7 +276,8 @@ class COMMON_WIDGET():
         reload(cacheManger_widget)
         from spark.widget.common_widget.cacheManger_widget import CACHEMANGER_WIDGET
         cache_mager_class = CACHEMANGER_WIDGET()
-        cache_mager_class.show()
+        window = cache_mager_class.window_show_def()
+
 
 
 

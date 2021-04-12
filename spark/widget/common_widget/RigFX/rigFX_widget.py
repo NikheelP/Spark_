@@ -29,6 +29,11 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         self.spacing = 3
         self.icon_size = 30
 
+        self.no_techanim_lineedit_lock = False
+        self.no_techanimCloth_lineedit_lock = False
+        self.rigfxname_lock = False
+
+
         self.validator = QDoubleValidator()
 
         self.rig_fx_class = RIGFX()
@@ -109,10 +114,18 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
 
         self.no_of_techanim_file_lineedit = self.sample_widget_template.line_edit(set_text=str(3))
         self.no_of_techanim_file_lineedit.setValidator(self.validator)
+        if self.no_techanim_lineedit_lock == True:
+            self.no_of_techanim_file_lineedit.setDisabled(True)
+        else:
+            self.no_of_techanim_file_lineedit.setDisabled(False)
+
         grid_Layout.addWidget(self.no_of_techanim_file_lineedit, vertical_val, new_value, 1, 1)
         new_value = 0
         vertical_val += 1
 
+        self.no_techanim_lineedit_lock = False
+        self.no_techanimCloth_lineedit_lock = False
+        self.rigfxname_lock = False
 
 
         #NO OF THE TECHANIM CLOTH FILE
@@ -122,7 +135,11 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         new_value += 1
 
         self.no_of_techanimcloth_file_lineedit = self.sample_widget_template.line_edit(set_text=str(3))
-        self.no_of_techanim_file_lineedit.setValidator(self.validator)
+        self.no_of_techanimcloth_file_lineedit.setValidator(self.validator)
+        if self.no_techanimCloth_lineedit_lock == True:
+            self.no_of_techanimcloth_file_lineedit.setDisabled(True)
+        else:
+            self.no_of_techanimcloth_file_lineedit.setDisabled(False)
         grid_Layout.addWidget(self.no_of_techanimcloth_file_lineedit, vertical_val, new_value, 1, 1)
         new_value = 0
         vertical_val += 1
@@ -138,6 +155,10 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         #CREATE NAME LINEEDIT
         self.create_rigFx_lineedit = self.sample_widget_template.line_edit(set_PlaceholderText='Specify the RigFx Name')
         self.create_rigFx_lineedit.textChanged.connect(self.create_rigFx_lineedit_def)
+        if self.rigfxname_lock == True:
+            self.create_rigFx_lineedit.setDisabled(True)
+        else:
+            self.create_rigFx_lineedit.setDisabled(False)
         grid_Layout.addWidget(self.create_rigFx_lineedit, vertical_val, new_value, 1, 1)
         new_value = 0
         vertical_val += 1
@@ -149,6 +170,7 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         grid_Layout.addWidget(crete_rigfx_button, vertical_val, new_value, 1, 2)
 
         return create_main_widget
+
 
     def create_group_widget_def(self):
         '''
@@ -874,6 +896,14 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         if rigFx_name != '':
             self.rig_fx_class.rigFx_grp_def(rigFx_name, noTechAnimGrp=no_techanim_file, noTechAnimCloth=no_techanimcloth_file)
         self.create_rigFx_lineedit.setText('')
+
+        self.no_techanim_lineedit_lock = True
+        self.no_techanimCloth_lineedit_lock = True
+        self.rigfxname_lock = True
+
+        self.no_of_techanim_file_lineedit.setDisabled(True)
+        self.no_of_techanimcloth_file_lineedit.setDisabled(True)
+        self.create_rigFx_lineedit.setDisabled(True)
 
 
     def component_button_def(self):

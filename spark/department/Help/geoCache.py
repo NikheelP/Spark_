@@ -157,10 +157,37 @@ class GEOCACHE:
 
         # Export cache
         cmds.select(geo)
+        cache_path = 'doCreateGeometryCache ' + str(version) + ' {"0","' + str(startFrame) + '","' + str(
+            endFrame) + '","' + cacheDist + '","' + str(refresh) + '","' + cacheDir + '","' + str(
+            int(cachePerGeo)) + '","' + baseName + '","' + str(usePrefix) + '","' + cacheAction + '","' + str(
+            int(forceExport)) + '","1","1","0","0","mcc" };'
+
+
+        cache_path = 'doCreateGeometryCache "%s" {"2", "%s", "%s", "OneFile", "1", "%s", ' \
+                     '"0", "%s", "0", "export", "0", "1", "1", "0", "1", "mcx", "0" }' %(str(version), str(startFrame), str(endFrame), cacheDir, baseName)
+
+        print('this is the cacha path: ', cache_path)
+        mel.eval(cache_path)
+        '''
         mel.eval('doCreateGeometryCache ' + str(version) + ' {"0","' + str(startFrame) + '","' + str(
             endFrame) + '","' + cacheDist + '","' + str(refresh) + '","' + cacheDir + '","' + str(
             int(cachePerGeo)) + '","' + baseName + '","' + str(usePrefix) + '","' + cacheAction + '","' + str(
             int(forceExport)) + '","1","1","0","0","mcc" };')
+        '''
 
 
+    def export_abc_file(self,start_frame, end_frame, char_list, abc_file_path):
+        '''
 
+        :return:
+        '''
+        start = start_frame
+        end = end_frame
+        root = ''
+        for each in char_list:
+            root += ' -root ' + each
+
+        save_name = abc_file_path
+
+        command = "-frameRange " + str(start) + " " + str(end) + " -uvWrite -worldSpace " + root + " -file " + save_name
+        cmds.AbcExport(j=command)

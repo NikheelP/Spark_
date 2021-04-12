@@ -23,6 +23,7 @@ class RENAME_WIDGET(SAMPLE_WIDGET):
         super(RENAME_WIDGET, self).__init__(title=title)
         self.rename_class = RENAME()
         self.onlyInt = QIntValidator()
+
         self.prefix_name = 'prefix'
         self.suffix_name = 'suffix'
 

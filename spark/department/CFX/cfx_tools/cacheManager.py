@@ -45,7 +45,8 @@ class CACHEMANAGER:
         if ncloth_list:
             for each in ncloth_list:
                 if cmds.objectType(each) == 'transform':
-                    if cmds.objectType(cmds.listRelatives(each, s=True)) != 'nCloth':
+                    print('>>>>>>', cmds.objectType(cmds.listRelatives(each, s=True)))
+                    if cmds.objectType(cmds.listRelatives(each, s=True)) != 'nCloth' :
                         raise RuntimeError('Please Select nCloth Transform Node to run the cpmmand')
                 else:
                     if cmds.objectType(each) != 'nCloth':
@@ -351,14 +352,14 @@ class CACHEMANAGER:
 
         if filepath:
             #CHECK IF THE FOLDER IS EXISTS OR NOT
-            sim_cache_dir = filepath + '/data/simCache'
-            geo_cache_dir = filepath + '/data/geoCache'
-            playblast_cache_dir = filepath + '/data/PlayBlast'
-            final_cache_dir = filepath + '/data/FinalCache'
-            manual_cache_dir = filepath + '/data/ManulCache'
+            sim_cache_dir = filepath + 'data/simCache'
+            geo_cache_dir = filepath + 'data/geoCache'
+            playblast_cache_dir = filepath + 'data/PlayBlast'
+            final_cache_dir = filepath + 'data/FinalCache'
+            manual_cache_dir = filepath + 'data/ManulCache'
 
-            if not os.path.exists(filepath + '/data'):
-                os.mkdir(filepath + '/data')
+            if not os.path.exists(filepath + 'data'):
+                os.mkdir(filepath + 'data')
 
             for each in [sim_cache_dir, geo_cache_dir, playblast_cache_dir, final_cache_dir, manual_cache_dir]:
                 if not os.path.exists(each):
@@ -367,7 +368,7 @@ class CACHEMANAGER:
             #GET THE SIM CACHE PATH
 
 
-
+            print('this is sim cache dir', sim_cache_dir)
             return sim_cache_dir, geo_cache_dir, playblast_cache_dir, final_cache_dir, manual_cache_dir
 
 

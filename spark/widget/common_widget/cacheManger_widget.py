@@ -2,6 +2,7 @@ from spark.widget.import_module import *
 #from spark.widget.sample.sample_widget import SAMPLE_WIDGET
 import os, glob, json
 import maya.cmds as cmds
+import maya.mel as mel
 from functools import partial
 import time
 from os import listdir
@@ -14,7 +15,8 @@ from spark.department.Help import geoCache
 from spark.department.CFX.cfx_tools import cacheManager
 from spark.department.common import rename
 from spark.department.Help import attribute
-for each in [sample_color_variable, sample_widget_template, style_sheet_template, rename, cacheManager, geoCache, help, attribute]:
+from spark.department.CFX.cfx_tools.rigFX import rigFX_
+for each in [sample_color_variable, sample_widget_template, style_sheet_template, rename, cacheManager, geoCache, help, attribute, rigFX_]:
     reload(each)
 
 from spark.widget.sample.sample_maya_widget import SAMPLE_WIDGET
@@ -25,6 +27,7 @@ from spark.department.CFX.cfx_tools.cacheManager import CACHEMANAGER
 from spark.department.Help.geoCache import GEOCACHE
 from spark.department.Help.help import HELP
 from spark.department.Help.attribute import ATTRIBUTE
+from spark.department.CFX.cfx_tools.rigFX.rigFX_ import RIGFX
 
 from spark.widget.common_widget import cacheManager_icon
 cacheManagerIconPath = os.path.abspath(cacheManager_icon.__file__).replace('\\', '/')
@@ -37,12 +40,13 @@ last_obj = rigFxIconPath.split('/')[-1]
 rigfxIconPath_ = rigFxIconPath.split(last_obj)[0]
 
 class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
-    def __init__(self, title='Cache Manger', width=1000):
+    def __init__(self, title='Cache Manger', width=1200):
         super(CACHEMANGER_WIDGET, self).__init__(title=title, width=width)
         self.cache_manager_class = CACHEMANAGER()
         self.geo_cache_class = GEOCACHE()
         self.help_class = HELP()
         self.attribute_class = ATTRIBUTE()
+        self.rig_fx_class = RIGFX()
 
         self.end_time_val = cmds.playbackOptions(q=True, maxTime=True)
         self.start_time_val = cmds.playbackOptions(q=True, minTime=True)
@@ -60,6 +64,12 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.follicle1_tree_vis = False
         self.ncloth_tree_widget_item = []
         self.sim_tree_widget_item = {}
+        self.cam_list = []
+        cam_shape_list = cmds.ls(type='camera')
+        for each in cam_shape_list:
+            self.cam_list.append(cmds.listRelatives(each, p=True)[0])
+
+        self.float_validator = QDoubleValidator()
 
         #CACHE MANAER NODE
         self.cache_manager_data = 'CacheManagerData'
@@ -93,6 +103,9 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.manual_end_val = 0.0
         self.manual_path = 'manual_path'
 
+        self.camera = 'Camera'
+        self.camera_name = self.cam_list[0]
+
         self.ncloth_val = True
         self.nrigid_val = False
         self.nconstraint_val = False
@@ -105,14 +118,11 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.nhair_text = 'nHair'
         self.folical_text = 'follicle'
 
-
-
-
-        self.cache_manager_data_def()
         # GET THE SIM CACHE PATH
         self.sim_cache_path, self.geo_cache_path, self.playblast_cache_path, self.final_cache_path, self.manual_cache_path = self.cache_manager_class.initcheck()
-        self.set_cache_manger_data()
+        self.cache_manager_data_def()
 
+        self.get_cache_manager_data()
 
         self.ui()
 
@@ -122,13 +132,13 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         :return:
         '''
-        main_widget = self.get_main_widget()
+        self.main_widget = self.get_main_widget()
 
-        vertical_layout = self.sample_widget_template.vertical_layout(parent_self=main_widget)
+        vertical_layout = self.sample_widget_template.vertical_layout(parent_self=self.main_widget)
 
 
         #CACHE MANAGER UPPER WIDGET
-        cache_manager_upper_widget = self.sample_widget_template.widget_def(parent_self=main_widget)
+        cache_manager_upper_widget = self.sample_widget_template.widget_def(parent_self=self.main_widget)
         vertical_layout.addWidget(cache_manager_upper_widget)
 
         cache_manager_upper_widget_vertical_layout = self.sample_widget_template.vertical_layout(parent_self=cache_manager_upper_widget)
@@ -160,18 +170,17 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.comment_widget()
         self.file_status_widget()
 
-
-
         #REFRESH BUTTON
         button_min_height = 30
-        refresh_button_widget = self.sample_widget_template.widget_def(parent_self=main_widget,
+        refresh_button_widget = self.sample_widget_template.widget_def(parent_self=self.main_widget,
                                                                        min_size=[0, button_min_height],
                                                                        max_size=[self.sample_widget_template.max_size, button_min_height])
         vertical_layout.addWidget(refresh_button_widget)
 
         refresh_vertical_layout = self.sample_widget_template.vertical_layout(parent_self=refresh_button_widget)
 
-        refresh_button = self.sample_widget_template.pushButton(set_text='Refresh UI')
+        refresh_button = self.sample_widget_template.pushButton(set_text='Refresh UI',
+                                                                connect=self.window_show_def)
         refresh_vertical_layout.addWidget(refresh_button)
 
 
@@ -221,13 +230,29 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         vertical_layout.addWidget(refresh_everything_pushbutton)
         '''
 
+    def window_show_def(self):
+        '''
+
+        :return:
+        '''
+        self.close()
+
+        from spark.widget.common_widget import cacheManger_widget
+        reload(cacheManger_widget)
+        from spark.widget.common_widget.cacheManger_widget import CACHEMANGER_WIDGET
+        cache_mager_class = CACHEMANGER_WIDGET()
+        cache_mager_class.show()
+
+        return cache_mager_class
+
 
     def cloth_input_output_widget(self):
         '''
 
         :return:
         '''
-        cloth_input_output_widget = self.sample_widget_template.widget_def(self.upper_widget_splitter)
+        cloth_input_output_widget = self.sample_widget_template.widget_def(self.upper_widget_splitter,
+                                                                           max_size=[350, self.sample_widget_template.max_size])
 
         vertical_layout = self.sample_widget_template.vertical_layout(parent_self=cloth_input_output_widget)
 
@@ -307,7 +332,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.ncloth_checkbox = self.sample_widget_template.checkbox(set_text=self.ncloth_text,
                                                                     set_object_name=ncloth_obj_name,
                                                                     set_styleSheet=ncloth_styleSheet, stateChanged=self.tree_checkbox_def)
-        self.ncloth_checkbox.setChecked(self.ncloth_tree_vis)
+        self.ncloth_checkbox.setChecked(self.ncloth_val)
         grid_layout.addWidget(self.ncloth_checkbox, vertical_val, new_value, 1, 1)
         new_value += 1
 
@@ -318,7 +343,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.nrigit_chekbox = self.sample_widget_template.checkbox(set_text=self.nrigit_text,
                                                               set_object_name=nrigit_obj_name,
                                                               set_styleSheet=nrigit_styleSheet, stateChanged=self.tree_checkbox_def)
-        self.nrigit_chekbox.setChecked(self.nRigit_tree_vis)
+        self.nrigit_chekbox.setChecked(self.nrigid_val)
         grid_layout.addWidget(self.nrigit_chekbox, vertical_val, new_value, 1, 1)
         new_value += 1
 
@@ -330,7 +355,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.nconstraint_checkbox = self.sample_widget_template.checkbox(set_text=self.nconstraint_text,
                                                                     set_object_name=nconstraint_obj_name,
                                                                     set_styleSheet=nconstraint_styleSheet, stateChanged=self.tree_checkbox_def)
-        self.nconstraint_checkbox.setChecked(self.nConstraint_tree_vis)
+        self.nconstraint_checkbox.setChecked(self.nconstraint_val)
         grid_layout.addWidget(self.nconstraint_checkbox, vertical_val, new_value, 1, 1)
         new_value += 1
 
@@ -342,7 +367,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.nhair_checkbox = self.sample_widget_template.checkbox(set_text=self.nhair_text,
                                                               set_object_name=nhair_obj_name,
                                                               set_styleSheet=nhair_styleSheet, stateChanged=self.tree_checkbox_def)
-        self.nhair_checkbox.setChecked(self.nhair_tree_vis)
+        self.nhair_checkbox.setChecked(self.nhair_val)
         grid_layout.addWidget(self.nhair_checkbox, vertical_val, new_value, 1, 1)
         new_value += 1
 
@@ -355,7 +380,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                                                                    set_object_name=folical_obj_name,
                                                                    set_styleSheet=folical_styleSheet,
                                                                    stateChanged=self.tree_checkbox_def)
-        self.folicle_checkbox.setChecked(self.follicle1_tree_vis)
+        self.folicle_checkbox.setChecked(self.folical_val)
         self.nhair_checkbox.setChecked(self.nhair_tree_vis)
         grid_layout.addWidget(self.folicle_checkbox, vertical_val, new_value, 1, 1)
         new_value += 1
@@ -416,7 +441,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         :return:
         '''
 
-        cloth_button_widget = self.sample_widget_template.widget_def(self.upper_widget_splitter)
+        cloth_button_widget = self.sample_widget_template.widget_def(self.upper_widget_splitter,
+                                                                     max_size=[180, self.sample_widget_template.max_size])
 
         vertical_layout = self.sample_widget_template.vertical_layout(parent_self=cloth_button_widget,
                                                                       set_spacing=5)
@@ -464,8 +490,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         icon_path = cacheManagerIconPath + icon_
         geo_cache_button = self.sample_widget_template.pushButton(set_text=geo_cache_text,
                                                                   max_size=[self.sample_widget_template.max_size, button_height],
-                                                                      set_icon=icon_path,
-                                                                      set_icon_size=[self.icon_size, self.icon_size],
+                                                                  set_icon=icon_path,
+                                                                  set_icon_size=[self.icon_size, self.icon_size],
                                                                   connect=self.geo_cache_button_def)
         vertical_layout.addWidget(geo_cache_button)
 
@@ -485,8 +511,9 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         icon_path = cacheManagerIconPath + icon_
         playblast_button = self.sample_widget_template.pushButton(set_text=playblast_button_text,
                                                                   max_size=[self.sample_widget_template.max_size, button_height],
-                                                                      set_icon=icon_path,
-                                                                      set_icon_size=[self.icon_size, self.icon_size])
+                                                                  set_icon=icon_path,
+                                                                  set_icon_size=[self.icon_size, self.icon_size],
+                                                                  connect=self.playblast_button_def)
         vertical_layout.addWidget(playblast_button)
 
         # FINCAL CACHE BUTTON
@@ -496,8 +523,18 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         final_cache_button = self.sample_widget_template.pushButton(set_text=final_cache_button_text,
                                                                     max_size=[self.sample_widget_template.max_size, button_height],
                                                                       set_icon=icon_path,
-                                                                      set_icon_size=[self.icon_size, self.icon_size])
+                                                                      set_icon_size=[self.icon_size, self.icon_size],
+                                                                    connect=self.final_cache_button_def)
         vertical_layout.addWidget(final_cache_button)
+
+        # MANUAL CACHE BUTTON
+        manual_cache_button_text = 'Manual Cache'
+
+
+        manual_cache_button = self.sample_widget_template.pushButton(set_text=manual_cache_button_text,
+                                                                    max_size=[self.sample_widget_template.max_size,button_height],
+                                                                     connect=self.manual_cache_button_def)
+        vertical_layout.addWidget(manual_cache_button)
 
 
         return cloth_button_widget
@@ -519,17 +556,18 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                 self.attribute_class.add_attr(self.cache_manager_data, attribute_name=each, attribute_type=self.attribute_class.float)
 
 
-            for each in [self.sim_path, self.geo_path, self.playblast_path, self.final_path, self.manual_path]:
+            for each in [self.sim_path, self.geo_path, self.playblast_path, self.final_path, self.manual_path, self.camera]:
                 self.attribute_class.add_attr(obj=self.cache_manager_data, attribute_name=each, attribute_type=self.attribute_class.string)
 
 
             for each in [self.ncloth_text, self.nrigit_text, self.nconstraint_text, self.nhair_text, self.folical_text]:
                 self.attribute_class.add_attr(obj=self.cache_manager_data, attribute_name=each, attribute_type=self.attribute_class.boolean)
 
-
-
             cmds.setAttr((self.cache_manager_data + '.hideOnPlayback'), 1)
             cmds.setAttr((self.cache_manager_data + '.hiddenInOutliner'), 1)
+
+            #SET THE ATTRIBUTE
+            self.set_cache_manger_data()
 
 
 
@@ -552,11 +590,12 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
             self.final_start_val = cmds.getAttr(self.cache_manager_data + '.' + self.final_start)
             self.final_end_val = cmds.getAttr(self.cache_manager_data + '.' + self.final_end)
             self.final_cache_path = cmds.getAttr(self.cache_manager_data + '.' + self.final_path)
-            self.ncloth_val = cmds.setAttr(self.cache_manager_data + '.' + self.ncloth_text)
-            self.nrigid_val = cmds.setAttr(self.cache_manager_data + '.' + self.nrigit_text)
-            self.nconstraint_val = cmds.setAttr(self.cache_manager_data + '.' + self.nconstraint_text)
-            self.nhair_val = cmds.setAttr(self.cache_manager_data + '.' + self.nhair_text)
-            self.folical_val = cmds.setAttr(self.cache_manager_data + '.' + self.folical_text)
+            self.camera_name = cmds.getAttr(self.cache_manager_data + '.' + self.camera)
+            self.ncloth_val = cmds.getAttr(self.cache_manager_data + '.' + self.ncloth_text)
+            self.nrigid_val = cmds.getAttr(self.cache_manager_data + '.' + self.nrigit_text)
+            self.nconstraint_val = cmds.getAttr(self.cache_manager_data + '.' + self.nconstraint_text)
+            self.nhair_val = cmds.getAttr(self.cache_manager_data + '.' + self.nhair_text)
+            self.folical_val = cmds.getAttr(self.cache_manager_data + '.' + self.folical_text)
 
 
     def set_cache_manger_data(self):
@@ -566,6 +605,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         '''
 
         if cmds.objExists(self.cache_manager_data):
+
             cmds.setAttr(self.cache_manager_data + '.' + self.sim_start, self.sim_start_val)
             cmds.setAttr(self.cache_manager_data + '.' + self.sim_end, self.sim_end_val)
             cmds.setAttr(self.cache_manager_data + '.' + self.sim_path, self.sim_cache_path, type='string')
@@ -578,12 +618,15 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
             cmds.setAttr(self.cache_manager_data + '.' + self.final_start, self.final_start_val)
             cmds.setAttr(self.cache_manager_data + '.' + self.final_end, self.final_end_val)
             cmds.setAttr(self.cache_manager_data + '.' + self.final_path, self.final_cache_path, type='string')
+            cmds.setAttr(self.cache_manager_data + '.' + self.camera, self.camera_name, type='string')
+            cmds.setAttr(self.cache_manager_data + '.' + self.manual_start, self.manual_start_val)
+            cmds.setAttr(self.cache_manager_data + '.' + self.manual_end, self.manual_end_val)
+            cmds.setAttr(self.cache_manager_data + '.' + self.manual_path, self.manual_cache_path, type='string')
             cmds.setAttr(self.cache_manager_data + '.' + self.ncloth_text, self.ncloth_val)
             cmds.setAttr(self.cache_manager_data + '.' + self.nrigit_text, self.nrigid_val)
             cmds.setAttr(self.cache_manager_data + '.' + self.nconstraint_text, self.nconstraint_val)
             cmds.setAttr(self.cache_manager_data + '.' + self.nhair_text, self.nhair_val)
             cmds.setAttr(self.cache_manager_data + '.' + self.folical_text, self.folical_val)
-
 
 
     def cache_playblast_history_widget(self):
@@ -785,13 +828,18 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.sim_start_val = self.cache_manager_class.get_nucleus_start_frame()
         self.sim_start_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.sim_start_val),
                                                                              set_PlaceholderText='Set Start Time')
+        self.sim_start_time_lineedit.setValidator(self.float_validator)
         self.sim_start_time_lineedit.textChanged.connect(self.sim_start_time_lineedit_def)
 
         horizontal_layout.addWidget(self.sim_start_time_lineedit)
 
         #END TIME
-        self.sim_end_val = self.end_time_val + 10
+        if self.end_time_val > self.start_time_val:
+            self.sim_end_val = self.end_time_val + 10
+        else:
+            self.sim_end_val = self.start_time_val + 10
         self.sim_end_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.sim_end_val), set_PlaceholderText='Set End Time')
+        self.sim_end_time_lineedit.setValidator(self.float_validator)
         self.sim_end_time_lineedit.textChanged.connect(self.sim_end_time_lineedit_def)
         horizontal_layout.addWidget(self.sim_end_time_lineedit)
 
@@ -824,17 +872,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         vertical_laout.addWidget(replace_cache_widget)
         replace_vertical_layout = self.sample_widget_template.vertical_layout(parent_self=replace_cache_widget)
 
-        '''
-        replace_chekbox_text = 'Replace Cache'
-        replace_chekbox_object = self.sample_widget_template.setObjectName(replace_chekbox_text)
-        replace_checkbox_setStyleSheet = self.sample_widget_template.styleSheet_def(obj_name=replace_chekbox_object,
-                                                                                    color=self.color_variable_class.yellow_color.get_value())
-        self.replace_checkbox = self.sample_widget_template.checkbox(set_text=replace_chekbox_object,
-                                                                set_object_name=replace_chekbox_object,
-                                                                set_styleSheet=replace_checkbox_setStyleSheet)
-        self.replace_checkbox.setChecked(True)
-        replace_vertical_layout.addWidget(self.replace_checkbox)
-        '''
         ####################################
         #LIST WIDGET
         self.sim_cache_list_widget = self.sample_widget_template.list_widget()
@@ -871,13 +908,21 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         #START TIME
         self.geo_cache_start_val = self.start_time_val - self.buffer_val
         self.geo_start_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.geo_cache_start_val),
-                                                                        set_PlaceholderText='Set Start Time')
+                                                                             set_PlaceholderText='Set Start Time')
+        self.geo_start_time_lineedit.setValidator(self.float_validator)
+        self.geo_start_time_lineedit.textChanged.connect(self.geo_start_time_lineedit_def)
         horizontal_layout.addWidget(self.geo_start_time_lineedit)
 
         #END TIME
-        self.geo_cache_end_val = self.end_time_val + self.buffer_val
+        if self.end_time_val > self.geo_cache_start_val:
+            self.geo_cache_end_val = self.end_time_val + self.buffer_val
+        else:
+            self.geo_cache_end_val = self.geo_cache_start_val + self.buffer_val
+
         self.geo_end_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.geo_cache_end_val),
                                                                       set_PlaceholderText='Set End Time')
+        self.geo_end_time_lineedit.setValidator(self.float_validator)
+        self.geo_end_time_lineedit.textChanged.connect(self.geo_end_time_lineedit_def)
         horizontal_layout.addWidget(self.geo_end_time_lineedit)
 
 
@@ -892,18 +937,86 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         cache_path_label = self.sample_widget_template.label(set_text=cache_path_label_text)
         horizontal_layout.addWidget(cache_path_label)
 
-        cache_path_lineedit = self.sample_widget_template.line_edit(set_text=self.geo_cache_path)
-        horizontal_layout.addWidget(cache_path_lineedit)
+        self.geo_cache_lineedit = self.sample_widget_template.line_edit(set_text=self.geo_cache_path)
+        self.geo_cache_lineedit.textChanged.connect(self.geo_cache_lineedit_def)
+        horizontal_layout.addWidget(self.geo_cache_lineedit)
+
+        #GEO CACH BROWSE
+        geo_cache_path_browse_button = self.sample_widget_template.pushButton(set_text='...',
+                                                                              connect=self.geo_cache_path_browse_button_def)
+        horizontal_layout.addWidget(geo_cache_path_browse_button)
 
 
         ####################################
         #LIST WIDGET
         self.geo_cache_list_widget = self.sample_widget_template.list_widget()
+        self.geo_cache_list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.geo_cache_list_widget.customContextMenuRequested.connect(self.geo_cache_list_widget_contexMenu)
+        self.geo_cache_list_widget.itemSelectionChanged.connect(self.geo_cache_list_widget_def)
+
         vertical_laout.addWidget(self.geo_cache_list_widget)
         self.update_geo_cache_listwidget()
         self.set_cache_manger_data()
 
         return widget
+
+    def geo_cache_list_widget_def(self):
+        '''
+
+        :return:
+        '''
+        item = self.geo_cache_list_widget.selectedItems()[0]
+        json_path = self.geo_cache_path + '/' + item.text() + '.json'
+
+        file_path = json_path.replace('json', 'mcx')
+
+        with open(json_path) as f:
+            data = json.load(f)
+            self.update_ui_json_read(data, file_name=item.text(), file_path=file_path, param=False)
+
+
+    def playblast_list_widget_def(self):
+        '''
+
+        :return:
+        '''
+        item = self.playblast_list_widget.selectedItems()[0]
+        json_path = self.playblast_cache_path + '/' + item.text() + '.json'
+
+        file_path = json_path.replace('json', 'mov')
+
+        with open(json_path) as f:
+            data = json.load(f)
+            self.update_ui_json_read(data, file_name=item.text(), file_path=file_path, param=False)
+
+    def final_cache_list_widget_def(self):
+        '''
+
+        :return:
+        '''
+        item = self.final_cache_list_widget.selectedItems()[0]
+        json_path = self.final_cache_path + '/' + item.text() + '/' + item.text() + '.json'
+
+        file_path = json_path.replace('json', 'abc')
+
+        with open(json_path) as f:
+            data = json.load(f)
+            self.update_ui_json_read(data, file_name=item.text(), file_path=file_path, param=False)
+
+    def manual_cache_list_widget_def(self):
+        '''
+
+        :return:
+        '''
+        item = self.manual_cache_list_widget.selectedItems()[0]
+        json_path = self.manual_cache_path + '/' + item.text() + '/' + item.text() + '.json'
+
+        file_path = json_path.replace('json', 'abc')
+
+        with open(json_path) as f:
+            data = json.load(f)
+            self.update_ui_json_read(data, file_name=item.text(), file_path=file_path, param=False)
+
 
     def playblast_history_def(self):
         '''
@@ -928,14 +1041,24 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         horizontal_layout.addWidget(time_range_label)
 
         #START TIME
-        geo_start_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.playblast_start_val),
+        self.playblast_start_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.playblast_start_val),
                                                                         set_PlaceholderText='Set Start Time')
-        horizontal_layout.addWidget(geo_start_time_lineedit)
 
-        #END TIME
-        self.playblast_end_val = self.end_time_val + self.buffer_val
-        geo_end_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.playblast_end_val), set_PlaceholderText='Set End Time')
-        horizontal_layout.addWidget(geo_end_time_lineedit)
+        self.playblast_start_time_lineedit.setValidator(self.float_validator)
+        self.playblast_start_time_lineedit.textChanged.connect(self.playblast_start_time_lineedit_def)
+        horizontal_layout.addWidget(self.playblast_start_time_lineedit)
+
+        # END TIME
+        if self.end_time_val > self.playblast_start_val:
+            self.playblast_end_val = self.end_time_val + self.buffer_val
+        else:
+            self.playblast_end_val = self.playblast_start_val + self.buffer_val
+
+
+        self.playblast_end_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.playblast_end_val), set_PlaceholderText='Set End Time')
+        self.playblast_end_time_lineedit.setValidator(self.float_validator)
+        self.playblast_end_time_lineedit.textChanged.connect(self.playblast_end_time_lineedit_def)
+        horizontal_layout.addWidget(self.playblast_end_time_lineedit)
 
         ####################################
         #CACHE PATH WIDGET
@@ -948,8 +1071,14 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         playblast_path_label = self.sample_widget_template.label(set_text=playblast_path_label_text)
         horizontal_layout.addWidget(playblast_path_label)
 
-        cache_path_lineedit = self.sample_widget_template.line_edit(set_text=self.playblast_cache_path)
-        horizontal_layout.addWidget(cache_path_lineedit)
+        self.playblast_path_lineedit = self.sample_widget_template.line_edit(set_text=self.playblast_cache_path)
+        self.playblast_path_lineedit.textChanged.connect(self.playblast_path_lineedit_def)
+        horizontal_layout.addWidget(self.playblast_path_lineedit)
+
+        # PLAYBLAST BROWSE
+        playblast_path_browse_button = self.sample_widget_template.pushButton(set_text='...',
+                                                                              connect=self.playblast_path_browse_button_def)
+        horizontal_layout.addWidget(playblast_path_browse_button)
 
 
         #CAM WIDGET
@@ -967,8 +1096,13 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         new_value += 1
 
         #CAMERA COMBOXBOX
-        camera_combobox = self.sample_widget_template.comboBox()
-        grid_layout.addWidget(camera_combobox, vertical_val, new_value, 1, 1)
+
+
+
+        self.camera_combobox = self.sample_widget_template.comboBox(addItems=self.cam_list)
+
+        self.camera_combobox.currentIndexChanged.connect(self.camera_combobox_def)
+        grid_layout.addWidget(self.camera_combobox, vertical_val, new_value, 1, 1)
         vertical_val += 1
         new_value = 0
 
@@ -981,12 +1115,26 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         ####################################
         #LIST WIDGET
-        sim_cache_list_widget = self.sample_widget_template.list_widget()
-        vertical_laout.addWidget(sim_cache_list_widget)
+        self.playblast_list_widget = self.sample_widget_template.list_widget()
+        self.update_playblast_list_widget()
+        self.playblast_list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.playblast_list_widget.customContextMenuRequested.connect(self.playblast_list_widget_contexMenu)
+        self.playblast_list_widget.itemSelectionChanged.connect(self.playblast_list_widget_def)
+        vertical_laout.addWidget(self.playblast_list_widget)
 
         self.set_cache_manger_data()
 
         return widget
+
+    def camera_combobox_def(self, index):
+        '''
+
+        :param index:
+        :return:
+        '''
+        self.camera_name = self.camera_combobox.currentText()
+        self.set_cache_manger_data()
+
 
     def final_cache_history_def(self):
         '''
@@ -1012,13 +1160,21 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         #START TIME
         self.final_start_val = self.start_time_val - self.buffer_val
-        final_start_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.final_start_val), set_PlaceholderText='Set Start Time')
-        horizontal_layout.addWidget(final_start_time_lineedit)
+        self.final_start_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.final_start_val), set_PlaceholderText='Set Start Time')
+        self.final_start_time_lineedit.setValidator(self.float_validator)
+        self.final_start_time_lineedit.textChanged.connect(self.final_start_time_lineedit_def)
+        horizontal_layout.addWidget(self.final_start_time_lineedit)
 
-        #END TIME
-        self.final_end_val = self.end_time_val + self.buffer_val
-        final_end_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.final_end_val), set_PlaceholderText='Set End Time')
-        horizontal_layout.addWidget(final_end_time_lineedit)
+        # END TIME
+        if self.end_time_val > self.final_start_val:
+            self.final_end_val = self.end_time_val + self.buffer_val
+        else:
+            self.final_end_val = self.final_start_val + self.buffer_val
+
+        self.final_end_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.final_end_val), set_PlaceholderText='Set End Time')
+        self.final_end_time_lineedit.setValidator(self.float_validator)
+        self.final_end_time_lineedit.textChanged.connect(self.final_end_time_lineedit_def)
+        horizontal_layout.addWidget(self.final_end_time_lineedit)
 
 
         ####################################
@@ -1032,14 +1188,24 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         cache_path_label = self.sample_widget_template.label(set_text=cache_path_label_text)
         horizontal_layout.addWidget(cache_path_label)
 
-        cache_path_lineedit = self.sample_widget_template.line_edit(set_text=self.final_cache_path)
-        horizontal_layout.addWidget(cache_path_lineedit)
+        self.final_cache_path_lineedit = self.sample_widget_template.line_edit(set_text=self.final_cache_path)
+        self.final_cache_path_lineedit.textChanged.connect(self.final_cache_path_lineedit_def)
+        horizontal_layout.addWidget(self.final_cache_path_lineedit)
+
+        #FINAL CACHE BROWSE
+        final_cache_browse_button = self.sample_widget_template.pushButton(set_text='...',
+                                                                           connect=self.final_cache_browse_button_def)
+        horizontal_layout.addWidget(final_cache_browse_button)
 
 
         ####################################
         #LIST WIDGET
-        final_cache_list_widget = self.sample_widget_template.list_widget()
-        vertical_laout.addWidget(final_cache_list_widget)
+        self.final_cache_list_widget = self.sample_widget_template.list_widget()
+        self.final_cache_list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.final_cache_list_widget.customContextMenuRequested.connect(self.final_cache_list_widget_contexMenu)
+        self.final_cache_list_widget.itemSelectionChanged.connect(self.final_cache_list_widget_def)
+        self.update_final_list_widget()
+        vertical_laout.addWidget(self.final_cache_list_widget)
 
         self.set_cache_manger_data()
 
@@ -1069,15 +1235,23 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         # START TIME
         self.manual_start_val = self.start_time_val - self.buffer_val
-        manual_start_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.manual_start_val),
+        self.manual_start_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.manual_start_val),
                                                                           set_PlaceholderText='Set Start Time')
-        horizontal_layout.addWidget(manual_start_time_lineedit)
+        self.manual_start_time_lineedit.setValidator(self.float_validator)
+        self.manual_start_time_lineedit.textChanged.connect(self.manual_start_time_lineedit_def)
+        horizontal_layout.addWidget(self.manual_start_time_lineedit)
 
         # END TIME
-        self.manual_end_val = self.end_time_val + self.buffer_val
-        manual_end_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.final_end_val),
+        if self.end_time_val > self.final_start_val:
+            self.manual_end_val = self.end_time_val + self.buffer_val
+        else:
+            self.manual_end_val = self.final_start_val + self.buffer_val
+
+        self.manual_end_time_lineedit = self.sample_widget_template.line_edit(set_text=str(self.final_end_val),
                                                                         set_PlaceholderText='Set End Time')
-        horizontal_layout.addWidget(manual_end_time_lineedit)
+        self.manual_end_time_lineedit.setValidator(self.float_validator)
+        self.manual_end_time_lineedit.textChanged.connect(self.manual_end_time_lineedit_def)
+        horizontal_layout.addWidget(self.manual_end_time_lineedit)
 
         ####################################
         # CACHE PATH WIDGET
@@ -1090,17 +1264,28 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         cache_path_label = self.sample_widget_template.label(set_text=cache_path_label_text)
         horizontal_layout.addWidget(cache_path_label)
 
-        cache_path_lineedit = self.sample_widget_template.line_edit(set_text=self.manual_cache_path)
-        horizontal_layout.addWidget(cache_path_lineedit)
+        self.manual_cache_path_lineedit = self.sample_widget_template.line_edit(set_text=self.manual_cache_path)
+        self.manual_cache_path_lineedit.textChanged.connect(self.manual_cache_path_lineedit_def)
+        horizontal_layout.addWidget(self.manual_cache_path_lineedit)
+
+        # MANUAL CACHE BROWSE
+        manual_cache_browse_button = self.sample_widget_template.pushButton(set_text='...',
+                                                                           connect=self.manaul_cache_browse_button_def)
+        horizontal_layout.addWidget(manual_cache_browse_button)
 
         ####################################
         # LIST WIDGET
-        manual_cache_list_widget = self.sample_widget_template.list_widget()
-        vertical_laout.addWidget(manual_cache_list_widget)
+        self.manual_cache_list_widget = self.sample_widget_template.list_widget()
+        self.manual_cache_list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.manual_cache_list_widget.customContextMenuRequested.connect(self.manual_cache_list_widget_contexMenu)
+        self.manual_cache_list_widget.itemSelectionChanged.connect(self.manual_cache_list_widget_def)
+        self.update_manual_list_widget()
+        vertical_laout.addWidget(self.manual_cache_list_widget)
 
         self.set_cache_manger_data()
 
         return widget
+
 
 
     def tree_on_off_icon_color(self, value):
@@ -1294,10 +1479,36 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         :return:
         '''
-        input_list_widget = self.sample_widget_template.list_widget()
+        self.input_list_widget = self.sample_widget_template.list_widget()
+        self.input_list_widget.itemSelectionChanged.connect(self.input_list_widget_def)
+        self.input_list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        input_list = self.rig_fx_class.get_obj_type('Input')
+        if input_list:
+            grp_name = input_list[0]
+            all_input_child = cmds.listRelatives(grp_name, c=True, ad=True, fullPath=True)
+            if all_input_child:
+                for each in all_input_child:
+                    if cmds.objectType(each) != 'transform':
+                        parent_obj = cmds.listRelatives(each, p=True, fullPath=True)[0]
+                        self.input_list_widget.addItem(parent_obj)
 
 
-        return input_list_widget
+        return self.input_list_widget
+
+    def input_list_widget_def(self):
+        '''
+
+        :return:
+        '''
+        items = self.input_list_widget.selectedItems()
+        item_list = []
+        for each in items:
+            item_text = each.text()
+            if cmds.objExists(item_text):
+                item_list.append(item_text)
+
+        cmds.select(item_list)
+
 
     def output_list_def(self):
         '''
@@ -1305,20 +1516,51 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         :return:
         '''
 
-        output_list_widget = self.sample_widget_template.list_widget()
+        self.output_list_widget = self.sample_widget_template.list_widget()
+        self.output_list_widget.itemSelectionChanged.connect(self.output_list_widget_def)
+        self.output_list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        output_list = self.rig_fx_class.get_obj_type('Final')
+        if output_list:
+            grp_name = output_list[0]
+            all_input_child = cmds.listRelatives(grp_name, c=True, ad=True, fullPath=True)
+            if all_input_child:
+                for each in all_input_child:
+                    if cmds.objectType(each) != 'transform':
+                        parent_obj = cmds.listRelatives(each, p=True, fullPath=True)[0]
+                        self.output_list_widget.addItem(parent_obj)
 
-        return output_list_widget
+        return self.output_list_widget
+
+    def output_list_widget_def(self):
+        '''
+
+        :return:
+        '''
+        items = self.output_list_widget.selectedItems()
+        item_list = []
+        for each in items:
+            item_text = each.text()
+            if cmds.objExists(item_text):
+                item_list.append(item_text)
+
+        cmds.select(item_list)
+
 
     def ncloth_cache_def(self):
         '''
 
         :return:
         '''
-        print('nCloth will cache')
         #GET ALL THE CLOTH
         # GET CACHE IS GOING TO REPLACE OR NOT
         if self.select_ncloth_node_checkbox.isChecked():
+
+            nHair = cmds.ls(type='hairSystem')
             nCloth = cmds.ls(type='nCloth')
+            print('this is ncoth: ', nCloth)
+            print('this is nHair: ', nHair)
+            #nCloth.extend(nHair)
+            print(nCloth)
             sel_ncloth = []
             for each in nCloth:
                 sel_ncloth.append(cmds.listRelatives(each, p=True)[0])
@@ -1397,6 +1639,135 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.update_sim_cache_listwidget()
         '''
 
+    def playblast_button_def(self):
+        '''
+
+        :return:
+        '''
+        current_start_frame, current_end_frame = self.cache_manager_class.set_frames(new_start_frame=self.playblast_start_val,
+                                                                 new_end_frame=self.playblast_end_val)
+
+        all_panel = cmds.getPanel(type='modelPanel')
+        for each_panel in all_panel:
+            try:
+                cmds.modelEditor(each_panel, e=True, alo=False)
+                cmds.modelEditor(each_panel, e=True, pm=True, nurbsCurves=True)
+                if cmds.ls(type='hairSystem'):
+                    cmds.modelEditor(each_panel, e=True, nurbsCurves=True)
+                mel.eval('lookThroughModelPanel %s %s;' % (self.camera_name, each_panel))
+            except:
+                pass
+        # playblast  -format qt -filename "movies/clothOne.mov" -forceOverwrite  -sequenceTime 0 -clearCache 1 -viewer 1 -showOrnaments 1 -fp 4 -percent 100 -compression "H.264" -quality 100;
+        #file_name = self.get_file_name() + '_' + str(len(file_path_list)) + '_Sim_Cache'
+        onlyfiles = [f for f in listdir(self.playblast_cache_path) if isfile(join(self.playblast_cache_path, f))]
+        file_path_list = []
+
+        for each in onlyfiles:
+            if '.mov' in each:
+                if self.cache_manager_class.get_file_name() in each:
+                    file_path_list.append(each)
+        name = self.playblast_cache_path + '/' + self.cache_manager_class.get_file_name() + '_' + str(len(file_path_list)) + '_PlayBlast'
+        file_name = name + '.mov'
+        json_name = name + '.json'
+
+
+        cmds.playblast(format='qt', forceOverwrite=True, p=100, sequenceTime=0, clearCache=True, viewer=True, showOrnaments=True, s="ohNo", compression='H.264', quality=100, f=file_name, framePadding=4)
+
+        for each_panel in all_panel:
+            cmds.modelEditor(each_panel, e=True, alo=True)
+
+        self.update_playblast_list_widget()
+
+        #UPDATE THE JSON PATH
+        attr_list= {}
+        attr_list['Comments'] = self.comments_plain_text_edit.toPlainText()
+        with open(json_name, 'w') as f:
+            json.dump(attr_list, f)
+
+        cmds.playbackOptions(minTime=current_start_frame, maxTime=current_end_frame)
+        self.comments_plain_text_edit.clear()
+
+    def final_cache_button_def(self):
+        '''
+
+        :return:
+        '''
+        sel_obj = cmds.ls(sl=True)
+        if not sel_obj:
+            raise Exception('Please select object to export the final cache')
+
+        current_start_frame, current_end_frame = self.cache_manager_class.set_frames(new_start_frame=self.final_start_val,
+                                                                                     new_end_frame=self.final_end_val)
+
+        #CREATE A FOLDER AND EXPORT ABC FILE IN THAT
+        list_dir = os.listdir(self.final_cache_path)
+        final_cache_name = 'Final_Cache_' + str(len(list_dir) + 1)
+        folder_path = self.final_cache_path + '/' + final_cache_name
+        os.mkdir(folder_path)
+
+        name = folder_path + '/' + final_cache_name
+        file_path = name + '.abc'
+        json_name = name + '.json'
+
+        self.geo_cache_class.export_abc_file(start_frame=self.final_start_val,
+                                             end_frame=self.final_end_val,
+                                             char_list=sel_obj,
+                                             abc_file_path=file_path)
+
+        self.update_final_list_widget()
+
+        # UPDATE THE JSON PATH
+        attr_list = {}
+        attr_list['Comments'] = self.comments_plain_text_edit.toPlainText()
+        with open(json_name, 'w') as f:
+            json.dump(attr_list, f)
+
+        self.comments_plain_text_edit.clear()
+
+        cmds.playbackOptions(minTime=current_start_frame, maxTime=current_end_frame)
+
+    def manual_cache_button_def(self):
+        '''
+
+        :return:
+        '''
+        sel_obj = cmds.ls(sl=True)
+        if not sel_obj:
+            raise Exception('Please select object to export the final cache')
+
+        current_start_frame, current_end_frame = self.cache_manager_class.set_frames(new_start_frame=self.manual_start_val,
+                                                                                     new_end_frame=self.manual_end_val)
+
+
+        # CREATE A FOLDER AND EXPORT ABC FILE IN THAT
+        list_dir = os.listdir(self.manual_cache_path)
+        manual_cache_name = 'Manual_Cache_' + str(len(list_dir) + 1)
+        folder_path = self.manual_cache_path + '/' + manual_cache_name
+        os.mkdir(folder_path)
+
+        name = folder_path + '/' + manual_cache_name
+        file_path = name + '.abc'
+        json_name = name + '.json'
+
+        self.geo_cache_class.export_abc_file(start_frame=self.final_start_val,
+                                             end_frame=self.final_end_val,
+                                             char_list=sel_obj,
+                                             abc_file_path=file_path)
+
+        self.update_manual_list_widget()
+
+        # UPDATE THE JSON PATH
+        attr_list = {}
+        attr_list['Comments'] = self.comments_plain_text_edit.toPlainText()
+        with open(json_name, 'w') as f:
+            json.dump(attr_list, f)
+
+        self.comments_plain_text_edit.clear()
+
+        cmds.playbackOptions(minTime=current_start_frame, maxTime=current_end_frame)
+
+
+
     def sim_cache_list_widget_def(self):
         '''
 
@@ -1425,6 +1796,75 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         popMenu.exec_(self.sim_cache_list_widget.mapToGlobal(position))
 
+    def geo_cache_list_widget_contexMenu(self, position):
+        '''
+
+        :return:
+        '''
+        popMenu = QMenu()
+        explore_folder = QAction("Explore to folder", self)
+        select_geo = QAction("Select Geo Connected with Cache", self)
+        explore_folder.triggered.connect(self.geo_explore_folder_def)
+        select_geo.triggered.connect(self.select_geo_def)
+
+        # Check if it is on the item when you right-click, if it is not, delete and modify will not be displayed.
+        popMenu.addAction(explore_folder)
+        popMenu.addAction(select_geo)
+
+        popMenu.exec_(self.sim_cache_list_widget.mapToGlobal(position))
+
+    def playblast_list_widget_contexMenu(self, position):
+        '''
+
+        :return:
+        '''
+        popMenu = QMenu()
+        explore_folder = QAction("Explore to folder", self)
+        openFile = QAction("OpenFile", self)
+        explore_folder.triggered.connect(self.playblast_explore_folder_def)
+        openFile.triggered.connect(self.playblast_openFile_def)
+
+        # Check if it is on the item when you right-click, if it is not, delete and modify will not be displayed.
+        popMenu.addAction(explore_folder)
+        popMenu.addAction(openFile)
+
+        popMenu.exec_(self.playblast_list_widget.mapToGlobal(position))
+
+    def final_cache_list_widget_contexMenu(self, position):
+        '''
+
+        :return:
+        '''
+        popMenu = QMenu()
+        explore_folder = QAction("Explore to folder", self)
+        import_file = QAction("Import File", self)
+        explore_folder.triggered.connect(self.final_cache_explore_folder_def)
+        import_file.triggered.connect(self.final_cache_import_file_def)
+
+        # Check if it is on the item when you right-click, if it is not, delete and modify will not be displayed.
+        popMenu.addAction(explore_folder)
+        popMenu.addAction(import_file)
+
+        popMenu.exec_(self.final_cache_list_widget.mapToGlobal(position))
+
+    def manual_cache_list_widget_contexMenu(self, position):
+        '''
+
+        :return:
+        '''
+        popMenu = QMenu()
+        explore_folder = QAction("Explore to folder", self)
+        import_file = QAction("Import File", self)
+        explore_folder.triggered.connect(self.manual_cache_explore_folder_def)
+        import_file.triggered.connect(self.manual_cache_import_file_def)
+
+        # Check if it is on the item when you right-click, if it is not, delete and modify will not be displayed.
+        popMenu.addAction(explore_folder)
+        popMenu.addAction(import_file)
+
+        popMenu.exec_(self.manual_cache_list_widget.mapToGlobal(position))
+
+
 
     def replace_attr_def(self):
         '''
@@ -1452,7 +1892,82 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         '''
         webbrowser.open(self.sim_cache_path)
 
-    def update_ui_json_read(self, json_data, file_name='', file_path=''):
+    def geo_explore_folder_def(self):
+        '''
+        exporing the folder
+        :return:
+        '''
+        webbrowser.open(self.geo_cache_path)
+
+    def select_geo_def(self):
+        '''
+
+        :return:
+        '''
+        item = self.geo_cache_list_widget.selectedItems()[0]
+        json_path = self.geo_cache_path + '/' + item.text() + '.json'
+
+        with open(json_path) as f:
+            data = json.load(f)
+            for each in data:
+                if each != 'Comments':
+                    if each == 'GeoList':
+                        cmds.select(data[each])
+
+
+
+    def playblast_explore_folder_def(self):
+        '''
+        exporing the folder
+        :return:
+        '''
+        webbrowser.open(self.playblast_cache_path)
+
+    def final_cache_explore_folder_def(self):
+        '''
+        exporing the folder
+        :return:
+        '''
+        webbrowser.open(self.final_cache_path)
+
+    def final_cache_import_file_def(self):
+        '''
+
+        :return:
+        '''
+        item = self.final_cache_list_widget.selectedItems()[0]
+        file_path = self.final_cache_path + '/' + item.text() + '/' + item.text() + '.abc'
+        cmds.AbcImport(file_path, mode='import')
+
+    def manual_cache_import_file_def(self):
+        '''
+
+        :return:
+        '''
+        item = self.manual_cache_list_widget.selectedItems()[0]
+        file_path = self.manual_cache_path + '/' + item.text() + '/' + item.text() + '.abc'
+        cmds.AbcImport(file_path, mode='import')
+
+
+    def manual_cache_explore_folder_def(self):
+        '''
+
+        :return:
+        '''
+        webbrowser.open(self.manual_cache_path)
+
+    def playblast_openFile_def(self):
+        '''
+
+        :return:
+        '''
+        item = self.playblast_list_widget.selectedItems()[0]
+        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',item.text())
+        file_path = self.playblast_cache_path + '/' + str(item.text()) + '.mov'
+        print('tis is the file path: ', file_path)
+        os.startfile(file_path)
+
+    def update_ui_json_read(self, json_data, file_name='', file_path='', param=True):
         '''
 
         :param json_data:
@@ -1469,15 +1984,17 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         #CREATE A TREE WIDGET
         self.parameter_tree_widget.clear()
-        for each in json_data:
-            if each != 'Comments':
-                each_name = QTreeWidgetItem(self.parameter_tree_widget)
-                each_name.setText(0, each)
-                for each_attr in json_data[each]:
-                    each_attr_name = QTreeWidgetItem(each_name)
-                    each_attr_name.setText(0, each_attr)
-                    val = str(json_data[each][each_attr])
-                    each_attr_name.setText(1, val)
+        if param:
+
+            for each in json_data:
+                if each != 'Comments':
+                    each_name = QTreeWidgetItem(self.parameter_tree_widget)
+                    each_name.setText(0, each)
+                    for each_attr in json_data[each]:
+                        each_attr_name = QTreeWidgetItem(each_name)
+                        each_attr_name.setText(0, each_attr)
+                        val = str(json_data[each][each_attr])
+                        each_attr_name.setText(1, val)
 
         '''
         nucleus = QTreeWidgetItem(self.parameter_tree_widget)
@@ -1530,8 +2047,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         else:
             self.cache_manager_class.delete_ncloth_cache(selected=False)
 
-
-
     def geo_cache_button_def(self):
         '''
         #create a geo cache on the gep cache directory
@@ -1551,10 +2066,11 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                 else:
                     if not cmds.objectType(each) == 'mesh':
                         raise Exception('Please Select Mesh Geo TO do a cache')
-
-
         else:
             raise Exception('Please Select Geometry Transformation node to do a cache')
+
+        current_start_frame, current_end_frame = self.cache_manager_class.set_frames(new_start_frame=self.geo_cache_start_val,
+                                                                                     new_end_frame=self.geo_cache_end_val)
 
         start_frame = float(self.geo_start_time_lineedit.text())
         end_frame = float(self.geo_end_time_lineedit.text())
@@ -1580,6 +2096,12 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         #UPDATE JSON FILE
         self.geo_json_file_create(geo_list=sel_geo, name=cache_name)
 
+        cmds.playbackOptions(minTime=current_start_frame, maxTime=current_end_frame)
+
+
+        #doCreateGeometryCache 5 {"0", "1.0", "1210.0", "OneFile", "1", "C:/Users/Admin/Desktop/test/data/geoCache", "1", "clothOne_Geo_7", "0", "export", "0", "1", "1", "0", "0", "mcc" };'
+        #doCreateGeometryCache 6 {"2", "1.0", "1210.0", "OneFile", "1", "C:/Users/Admin/Desktop/test/data/geoCache", "0", "clothOne_Geo_7", "0", "export", "0", "1", "1", "0", "1", "mcx", "0" } ;
+        #('this is the cacha path: ', u'doCreateGeometryCache 5 {"2", -19.0, 220.0, "OneFile", "1", C:/Users/Admin/Desktop/test/data/geoCache, "0", clothOne_Geo_0, "0", "export", "0", "1", "1", "0", "1", "mcx", "0" }')
 
 
     def update_geo_cache_listwidget(self):
@@ -1600,6 +2122,56 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                 self.geo_cache_list_widget.addItem(item)
 
 
+    def update_playblast_list_widget(self):
+        '''
+
+        :return:
+        '''
+        self.playblast_list_widget.clear()
+        # now add all the object into the list
+        files = list(filter(os.path.isfile, glob.glob(self.playblast_cache_path + "/*")))
+        files.sort(key=lambda x: os.path.getmtime(x))
+
+        for each in files:
+            split_ = each.split('\\')[1]
+            if '.mov' in split_:
+                item = QListWidgetItem(split_.split('.')[0])
+                self.playblast_list_widget.addItem(item)
+
+    def update_final_list_widget(self):
+        '''
+
+        :return:
+        '''
+        self.final_cache_list_widget.clear()
+        # now add all the object into the list
+
+        folder = os.listdir(self.final_cache_path)
+        for each in folder:
+            item = QListWidgetItem(each)
+            self.final_cache_list_widget.addItem(item)
+        '''
+        for each in folder:
+            split_ = each.split('\\')[1]
+            item = QListWidgetItem(split_.split('.')[0])
+            self.final_cache_list_widget.addItem(item)
+        '''
+    def update_manual_list_widget(self):
+        '''
+
+        :return:
+        '''
+        self.manual_cache_list_widget.clear()
+        # now add all the object into the list
+
+
+        folder = os.listdir(self.manual_cache_path)
+        for each in folder:
+            item = QListWidgetItem(each)
+            self.manual_cache_list_widget.addItem(item)
+
+
+
     def geo_json_file_create(self, geo_list, name):
         '''
 
@@ -1607,11 +2179,13 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         '''
         attr_list_val = {}
         attr_list_val['GeoList'] = geo_list
-        attr_list_val['Notes'] = self.comments_plain_text_edit.toPlainText()
+        attr_list_val['Comments'] = self.comments_plain_text_edit.toPlainText()
 
         json_path = self.geo_cache_path + '/' + name + '.json'
         with open(json_path, 'w') as f:
             json.dump(attr_list_val, f)
+
+        self.comments_plain_text_edit.clear()
 
     def tree_checkbox_def(self):
         '''
@@ -1651,6 +2225,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         self.sim_tree_widget.clear()
         self.sim_tree_def()
+        self.set_cache_manger_data()
 
 
 
@@ -1660,11 +2235,145 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         :return:
         '''
-        get_lineedit = self.sim_cache_path
-        file_path = QFileDialog.getOpenFileName(self, "Audio File",
-                                                             get_lineedit, '*')
-        #folderpath = QFileDialog.getExistingDirectory(self, 'Select Folder')
-        self.cache_path_lineedit.setText(file_path)
+        folder = str(QFileDialog.getExistingDirectory(self, "Select Directory", self.sim_cache_path))
+        self.cache_path_lineedit.setText(folder)
+
+
+    def geo_start_time_lineedit_def(self):
+        '''
+
+        :return:
+        '''
+        self.geo_cache_start_val = float(self.geo_start_time_lineedit.text())
+        self.set_cache_manger_data()
+
+    def geo_end_time_lineedit_def(self):
+        '''
+
+        :return:
+        '''
+        print('ascacac')
+        self.geo_cache_end_val = float(self.geo_end_time_lineedit.text())
+        self.set_cache_manger_data()
+
+    def geo_cache_path_browse_button_def(self):
+        '''
+
+        :return:
+        '''
+        folder = str(QFileDialog.getExistingDirectory(self, "Select Directory", self.geo_cache_path))
+        self.geo_cache_lineedit.setText(folder)
+
+    def playblast_path_browse_button_def(self):
+        '''
+
+        :return:
+        '''
+        folder = str(QFileDialog.getExistingDirectory(self, "Select Directory", self.playblast_cache_path))
+        if folder != '':
+            self.playblast_path_lineedit.setText(folder)
+
+    def final_cache_browse_button_def(self):
+        '''
+
+        :return:
+        '''
+        folder = str(QFileDialog.getExistingDirectory(self, "Select Directory", self.final_cache_path))
+        if folder != '':
+            self.final_cache_path_lineedit.setText(folder)
+
+    def manaul_cache_browse_button_def(self):
+        '''
+
+        :return:
+        '''
+        folder = str(QFileDialog.getExistingDirectory(self, "Select Directory", self.manual_cache_path))
+        if folder != '':
+            self.manual_cache_path_lineedit.setText(folder)
+
+    def playblast_path_lineedit_def(self):
+        '''
+
+        :return:
+        '''
+        self.playblast_cache_path = self.playblast_path_lineedit.text()
+        self.update_playblast_list_widget()
+        self.set_cache_manger_data()
+
+    def final_cache_path_lineedit_def(self):
+        '''
+
+        :return:
+        '''
+        self.final_cache_path = self.final_cache_path_lineedit.text()
+        self.update_final_list_widget()
+        self.set_cache_manger_data()
+
+    def manual_cache_path_lineedit_def(self):
+        '''
+
+        :return:
+        '''
+        self.manual_cache_path = self.manual_cache_path_lineedit.text()
+        self.update_manual_list_widget()
+        self.set_cache_manger_data()
+
+    def geo_cache_lineedit_def(self):
+        '''
+
+        :return:
+        '''
+        self.geo_cache_path = self.geo_cache_lineedit.text()
+        self.update_geo_cache_listwidget()
+        self.set_cache_manger_data()
+
+    def playblast_start_time_lineedit_def(self):
+        '''
+
+        :return:
+        '''
+        self.playblast_start_val = float(self.playblast_start_time_lineedit.text())
+        self.set_cache_manger_data()
+
+    def playblast_end_time_lineedit_def(self):
+        '''
+
+        :return:
+        '''
+        self.playblast_end_val = float(self.playblast_end_time_lineedit.text())
+        self.set_cache_manger_data()
+
+    def final_start_time_lineedit_def(self):
+        '''
+
+        :return:
+        '''
+        self.final_start_val = float(self.final_start_time_lineedit.text())
+        self.set_cache_manger_data()
+
+    def final_end_time_lineedit_def(self):
+        '''
+
+        :return:
+        '''
+        self.final_end_val = float(self.final_end_time_lineedit.text())
+        self.set_cache_manger_data()
+
+    def manual_start_time_lineedit_def(self):
+        '''
+
+        :return:
+        '''
+        self.manual_start_val = float(self.manual_start_time_lineedit.text())
+        self.set_cache_manger_data()
+
+    def manual_end_time_lineedit_def(self):
+        '''
+
+        :return:
+        '''
+        self.manual_end_val = float(self.manual_end_time_lineedit.text())
+        self.set_cache_manger_data()
 
 
     def sim_start_time_lineedit_def(self):
