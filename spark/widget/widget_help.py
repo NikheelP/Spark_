@@ -1,5 +1,5 @@
 import string
-
+import maya.cmds as cmds
 
 class WIDGET_HELP():
 
@@ -44,3 +44,23 @@ class WIDGET_HELP():
 
         return sentence
 
+
+    def listWidget_selection_change_select_obj(self, listWidget):
+        '''
+
+        :param listWidget:
+        :return:
+        '''
+
+        getSelected = listWidget.selectedItems()
+        obj = []
+        if getSelected:
+            a = 0
+            for each in getSelected:
+                baseNode = getSelected[a]
+                getChildNode = baseNode.text(0)
+                if cmds.objExists(getChildNode):
+                    obj.append(getChildNode)
+                a += 1
+        if obj:
+            cmds.select(obj)

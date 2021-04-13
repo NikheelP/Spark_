@@ -413,7 +413,7 @@ class RIGFX:
 
         self.update_sets_layer()
 
-    def create_hair_rigfx_def(self, hair_list, grp_name):
+    def create_hair_rigfx_def(self, hair_list, grp_name, auto_parent_root_joint=False):
         '''
 
         :param hair_list:
@@ -464,8 +464,6 @@ class RIGFX:
                 cmds.parent(each_nucleus, parent_obj)
             except:
                 pass
-
-
         #CREATE A RIG
         #STATIC JOINT RIG
         static_joint_list = []
@@ -507,14 +505,29 @@ class RIGFX:
         dyn_jnt_grp_name = grp_name + '_Dyn_Jnt_Grp'
         cmds.createNode('transform', n=dyn_jnt_grp_name)
         cmds.parent(dynamic_joint_list, dyn_jnt_grp_name)
+        extra_grp = ''
         for each in cmds.listRelatives(grp_name, c=True):
             if cmds.getAttr(each + '.obj_type') == 'ExtraGrp':
                 cmds.parent(static_jnt_grp_name, each)
                 cmds.parent(dyn_jnt_grp_name, each)
                 cmds.parent(handle_grp_name, each)
+                extra_grp = each
 
         #UPDATE THE LAYER
         self.update_sets_layer()
+
+        if auto_parent_root_joint:
+            #CREATE A ROOT JOINT AN PARENT ALL THE STATIC AND DYNAMIC JOINT TO THAT
+            root_joint = 'Root_Jnt'
+            if not cmds.objExists(root_joint):
+                cmds.select(cl=True)
+                cmds.joint(n=root_joint, p=(0, 0, 0))
+                for each in [static_joint_list, dynamic_joint_list]:
+                    cmds.parent(each, root_joint)
+
+            cmds.parent(root_joint, extra_grp)
+
+
 
 
 
@@ -600,10 +613,6 @@ class RIGFX:
             cmds.select(each)
             mel.eval('removeNCloth "selected";')
 
-
-
-
-
     def connect_inmesh_to_outmesh(self, obj_one, obj_two):
         '''
 
@@ -681,7 +690,23 @@ class RIGFX:
         for each in [helper_collider_grp, helper_constraint_grp, helper_field_grp, helper_extra_grp]:
             cmds.parent(each, helper_grp)
 
+        #CREATE A nucleus  AND PARENT TO MAIN GRP
 
+        name = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+        cmds.polySphere(n=name)
+        cloth_val = mel.eval('createNCloth 0;')
+        nucleus_name = list(set(cmds.listConnections(cloth_val, type='nucleus')))
+        if nucleus_name:
+            nucleus_name = nucleus_name[0]
+
+        cmds.delete(name)
+        try:
+            cmds.parent(nucleus_name, rig_fx_name)
+            mel.eval('expression -s "%s.startFrame = `playbackOptions -q -min`;"  -o %s -ae 1 -uc all ;' % (nucleus_name, nucleus_name))
+            cmds.currentTime(cmds.playbackOptions(q=True, minTime=True))
+
+        except:
+            pass
 
         #START ADDING THE TAG IN THE GRP
         #RIG FX

@@ -23,8 +23,8 @@ rigfxIconPath_ = rigFxIconPath.split(last_obj)[0]
 
 
 class RIGFX_WIDGET(SAMPLE_WIDGET):
-    def __init__(self, title='RigFx'):
-        super(RIGFX_WIDGET, self).__init__(title=title)
+    def __init__(self, title='RigFx', width=700, height=800):
+        super(RIGFX_WIDGET, self).__init__(title=title, width=width, height=height)
 
         self.spacing = 3
         self.icon_size = 30
@@ -184,6 +184,7 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         new_value = 0
         vertical_val = 0
 
+
         #CLOTH CHECKBOX
         self.cloth_checkbox = self.sample_widget_template.checkbox(set_text='Cloth', set_checked=True)
         self.cloth_checkbox.stateChanged.connect(self.cloth_checkbox_def)
@@ -196,6 +197,11 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         grid_Layout.addWidget(self.hair_checkbox, vertical_val, new_value, 1, 1)
         new_value = 0
         vertical_val += 1
+
+
+
+
+
 
         # CREATE NAME LABEL
         create_name_label_text = 'Group Name'
@@ -238,6 +244,7 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         if self.hair_checkbox.isChecked():
             self.hair_checkbox.setChecked(True)
             self.cloth_checkbox.setChecked(False)
+
         else:
             self.cloth_checkbox.setChecked(True)
             self.hair_checkbox.setChecked(False)
@@ -404,6 +411,10 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
                                                                            set_icon_size=[self.icon_size, self.icon_size],
                                                                            connect=self.rig_fx_class.paintHairFolical)
         hair_vertical_layout.addWidget(paint_hair_folical_button)
+
+        # AUTO PARENT TO ROOT JOINT
+        self.auto_parent_root_joint = self.sample_widget_template.checkbox(set_text='Auto Parent to Root Joint')
+        hair_vertical_layout.addWidget(self.auto_parent_root_joint)
 
         # MAKE SELECTION CURVE DYNAMICS
         make_selection_curve_to_dynamics_button_text = 'Make Selection curve to Dynamics'
@@ -707,6 +718,15 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
                                                                         connect=self.rig_fx_class.update_sets_layer)
         vericalLayout.addWidget(update_or_create_layer)
 
+        # Skin Bind Jnt
+        skinBin_jnt_text = 'skinBind Jnt'
+        skinBin_jnt_tooolTip = 'Bind the Skin with the specific Joint'
+        skinBin_jnt = self.sample_widget_template.pushButton(set_text=skinBin_jnt_text,
+                                                             set_tool_tip=skinBin_jnt_tooolTip,
+                                                             connect=self.skinBin_jnt_def)
+        vericalLayout.addWidget(skinBin_jnt)
+
+
         '''
         #IMPORT CLOTH RIG
         import_cloth_rig_button_text = 'Improt Cloth Rig'
@@ -756,13 +776,7 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
                                                                       connect=self.add_rigfx_tag_def)
         vericalLayout.addWidget(add_rigfx_tag)
 
-        # Skin Bind Jnt
-        skinBin_jnt_text = 'skinBind Jnt'
-        skinBin_jnt_tooolTip = 'Bind the Skin with the specific Joint'
-        skinBin_jnt = self.sample_widget_template.pushButton(set_text=skinBin_jnt_text,
-                                                             set_tool_tip=skinBin_jnt_tooolTip,
-                                                             connect=self.skinBin_jnt_def)
-        vericalLayout.addWidget(skinBin_jnt)
+        
 
         '''
 
@@ -812,8 +826,9 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         sel_obj = cmds.ls(sl=True)
         hair_grp = sel_obj[-1]
         curve_list = sel_obj.remove(hair_grp)
+        auto_parent_root_joint = self.auto_parent_root_joint.isChecked()
 
-        self.rig_fx_class.create_hair_rigfx_def(hair_list=sel_obj, grp_name=hair_grp)
+        self.rig_fx_class.create_hair_rigfx_def(hair_list=sel_obj, grp_name=hair_grp,auto_parent_root_joint=auto_parent_root_joint)
 
 
     def passive_collider_button_def(self):

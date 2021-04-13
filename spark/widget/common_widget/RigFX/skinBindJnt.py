@@ -66,6 +66,8 @@ class SKINBINDJNT(SAMPLE_WIDGET):
 
         #LIST WIDGET
         self.joint_list = self.sample_widget_template.list_widget()
+        self.joint_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.joint_list.itemSelectionChanged.connect(self.joint_list_def)
         vertical_layout.addWidget(self.joint_list)
 
 
@@ -77,7 +79,8 @@ class SKINBINDJNT(SAMPLE_WIDGET):
 
         #CLEAR JOINT LIST
         clear_joint_list_text = 'Clear Joint List'
-        clear_joint_list_button = self.sample_widget_template.pushButton(set_text=clear_joint_list_text)
+        clear_joint_list_button = self.sample_widget_template.pushButton(set_text=clear_joint_list_text,
+                                                                         connect=self.clear_joint_list_button_def)
         vertical_layout.addWidget(clear_joint_list_button)
 
 
@@ -98,6 +101,9 @@ class SKINBINDJNT(SAMPLE_WIDGET):
 
         # LIST WIDGET
         self.geo_list = self.sample_widget_template.list_widget()
+        self.geo_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.geo_list.itemSelectionChanged.connect(self.obj_list_def)
+
         vertical_layout.addWidget(self.geo_list)
 
         # ADD JOINT TO LIST
@@ -107,8 +113,9 @@ class SKINBINDJNT(SAMPLE_WIDGET):
         vertical_layout.addWidget(add_geo_to_list_button)
 
         # CLEAR JOINT LIST
-        clear_geo_listt_ext = 'Clear Joint List'
-        clear_geo_list_button = self.sample_widget_template.pushButton(set_text=clear_geo_listt_ext)
+        clear_geo_listt_ext = 'Clear Geo List'
+        clear_geo_list_button = self.sample_widget_template.pushButton(set_text=clear_geo_listt_ext,
+                                                                       connect=self.clear_geo_list_button_def)
         vertical_layout.addWidget(clear_geo_list_button)
 
         #vertical_layout.addItem(self.sample_widget_template.spaceItem())
@@ -129,15 +136,17 @@ class SKINBINDJNT(SAMPLE_WIDGET):
 
         #COMBOBOX
         itmes = ['Hierarchy', 'SelectedJoint']
-        hierarchy_selected_joint_combobox = self.sample_widget_template.comboBox(addItems=itmes)
-        vertical_layout.addWidget(hierarchy_selected_joint_combobox)
+        self.hierarchy_selected_joint_combobox = self.sample_widget_template.comboBox(addItems=itmes)
+        vertical_layout.addWidget(self.hierarchy_selected_joint_combobox)
 
 
         #BIND JNT BUTTON
         bind_jnt_text = 'Bind Jnt'
-        bind_jnt_button = self.sample_widget_template.pushButton(set_text=bind_jnt_text)
+        bind_jnt_button = self.sample_widget_template.pushButton(set_text=bind_jnt_text,
+                                                                 connect=self.bind_jnt_button_def)
         vertical_layout.addWidget(bind_jnt_button)
 
+        '''
         #GET LIST OF THE JOINT CONNECTED WITH THE SELECTED GEO
         get_list_of_joint_connected_with_selected_geo_text = 'get List Of the Joint Connected With The Selected Geo'
         get_list_of_joint_connected_with_selected_geo_button = self.sample_widget_template.pushButton(set_text=get_list_of_joint_connected_with_selected_geo_text)
@@ -147,7 +156,7 @@ class SKINBINDJNT(SAMPLE_WIDGET):
         get_list_of_geo_connected_with_selected_joint_text = 'get List Of the Joint Connected With The Selected Geo'
         get_list_of_geo_connected_with_selected_joint_button = self.sample_widget_template.pushButton(set_text=get_list_of_geo_connected_with_selected_joint_text)
         vertical_layout.addWidget(get_list_of_geo_connected_with_selected_joint_button)
-
+        '''
         return create_update_widget
 
 
@@ -166,6 +175,24 @@ class SKINBINDJNT(SAMPLE_WIDGET):
             if cmds.objectType(each_obj) == 'joint':
                 self.joint_list.addItem(each_obj)
 
+    def clear_joint_list_button_def(self):
+        '''
+        CLEAR THE LIST OF THE JOINT
+        :return:
+        '''
+        self.joint_list.clear()
+
+    def joint_list_def(self):
+        '''
+
+        :return:
+        '''
+        items = self.joint_list.selectedItems()
+        obj = []
+        for i in range(len(items)):
+            obj.append(str(self.joint_list.selectedItems()[i].text()))
+        if obj:
+            cmds.select(obj)
 
     def add_geo_to_list_button_def(self):
         '''
@@ -181,6 +208,96 @@ class SKINBINDJNT(SAMPLE_WIDGET):
             if shape_name != None:
                 if cmds.objectType(shape_name[0]) == 'mesh' or cmds.objectType(shape_name[0]) == 'nurbsCurve' or cmds.objectType(shape_name[0]) == 'nurbsSurface':
                     self.geo_list.addItem(each_obj)
+
+
+    def clear_geo_list_button_def(self):
+        '''
+        CLEAR THE GEO LIST
+        :return:
+        '''
+        self.geo_list.clear()
+
+    def obj_list_def(self):
+        '''
+
+        :return:
+        '''
+        items = self.geo_list.selectedItems()
+        obj = []
+        for i in range(len(items)):
+            obj.append(str(self.geo_list.selectedItems()[i].text()))
+        if obj:
+            cmds.select(obj)
+
+
+    def bind_jnt_button_def(self):
+        '''
+
+        :return:
+        '''
+        #CHECK IF IT HAS WHAT WE NEED
+        #1 -  IF JOINT HAS SELECTED AND MULTIPLE OBJ WILL BE FINE
+        #2 - IF LEFT AND RIGHT HAS SAME SELECTION
+        print('this is start')
+
+        #1
+        joint_list = self.joint_list.selectedItems()
+        geo_list = self.geo_list.selectedItems()
+
+        #CHECK HIERACHY AND SELECTED
+        #itmes = ['Hierarchy', 'SelectedJoint']
+        current_text = self.hierarchy_selected_joint_combobox.currentText()
+
+        if current_text == 'Hierarchy':
+            Hierarchy = True
+            SelectedJoint = False
+        else:
+            SelectedJoint = True
+            Hierarchy = False
+        print()
+        if len(joint_list) == len(geo_list):
+            print('this is sa,')
+            a = 0
+            for each in joint_list:
+                print(each)
+
+                if Hierarchy:
+                    jnt_name = self.joint_list.selectedItems()[a].text()
+                    jnt_list = cmds.listRelatives(jnt_name, c=True, ad=True, fullPath=True)
+                    jnt_list.append(jnt_name)
+                else:
+                    jnt_list = self.joint_list.selectedItems()[a].text()
+                print(jnt_list)
+                print(geo_list)
+                cmds.select(jnt_list, self.geo_list.selectedItems()[a].text())
+                cmds.SmoothBindSkin()
+
+                a+=1
+
+        else:
+            a = 0
+            jnt_all_list = []
+            for each in joint_list:
+                if Hierarchy:
+                    jnt_name = self.joint_list.selectedItems()[a].text()
+                    jnt_list = cmds.listRelatives(jnt_name, c=True, ad=True, fullPath=True)
+                    jnt_all_list.extend(jnt_list)
+                else:
+                    jnt_all_list = self.joint_list.selectedItems()[a].text()
+
+                a+=1
+            geo_all_list = []
+            a =0
+            for each in geo_list:
+                geo_all_list.append(self.geo_list.selectedItems()[a].text())
+                a+=1
+
+            print('thi sis eslsssssss')
+            cmds.select(jnt_all_list, geo_all_list)
+            cmds.SmoothBindSkin()
+            print('it wil bind randomly')
+
+
 
 
 
