@@ -23,7 +23,7 @@ class JOINT():
         return True
 
 
-    def createJointOnCurve(self, curve_name):
+    def createJointOnCurve(self, curve_name, addCtrl=False):
         '''
         CREATE A JOINT ON CURVE POINT
         :param curve_name:
@@ -34,16 +34,35 @@ class JOINT():
         a = 0
         old_jnt = ''
         jnt_list = []
+        jnt_all_list = []
         while a < noCV:
             point_position = cmds.pointPosition(curve_name + '.cv[%s]' % (a))
             jnt_name = curve_name + '_' + str(a + 1) + '_Jnt'
             cmds.select(cl=True)
             cmds.joint(n=jnt_name, p=point_position)
-            if not old_jnt == '':
+            jnt_all_list.append(jnt_name)
+            if a == 0:
+                first_jnt = jnt_name
+            if addCtrl:
+                if not a+1 == noCV:
+                    ctrl_name = jnt_name + '_Ctrl'
+                    name = cmds.circle(n=ctrl_name, nr=(1, 0, 0), c=(0, 0, 0), r=2 )
+                    cmds.delete(cmds.parentConstraint(jnt_name, ctrl_name, mo=False))
+                    cmds.select(ctrl_name)
+                    cmds.DeleteHistory()
+                    cmds.FreezeTransformations()
+                    cmds.parent(ctrl_name, jnt_name)
+
+            if jnt_list:
                 cmds.parent(jnt_name, jnt_list[-1])
 
-            jnt_list.append(jnt_name)
-            old_jnt = None
-            a += 1
+            if addCtrl:
+                if not a + 1 == noCV:
+                    jnt_list.append(ctrl_name)
+                else:
+                    jnt_list.append(jnt_name)
+            else:
+                jnt_list.append(jnt_name)
 
-        return jnt_list[0], jnt_list
+            a += 1
+        return first_jnt, jnt_all_list

@@ -468,7 +468,8 @@ class RIGFX:
         #STATIC JOINT RIG
         static_joint_list = []
         for each in new_curve_list:
-            first_jnt, jnt_list = self.joint_class.createJointOnCurve(each)
+            first_jnt, jnt_list = self.joint_class.createJointOnCurve(each,addCtrl=True)
+
             static_joint_list.append(first_jnt)
             #BIND TO CURVE
             cmds.select(jnt_list, each)
@@ -484,12 +485,15 @@ class RIGFX:
         handle_list = []
         handle_grp_name = grp_name + '_Handle_Grp'
         for each in output_curve_list:
-            first_jnt, jnt_list = self.joint_class.createJointOnCurve(each)
+            first_jnt, jnt_list = self.joint_class.createJointOnCurve(each, addCtrl=True)
             dynamic_joint_list.append(first_jnt)
 
             parent_obj = cmds.listRelatives(each, p=True)[0]
 
-            cmds.select(jnt_list[0], jnt_list[-1], each)
+            cmds.select(first_jnt, jnt_list[-1], each)
+            print('this is jointlist[0]', first_jnt)
+            print('this is jnt_list[-1]', jnt_list[-1])
+            print('this is each', each)
             handle_name = each + '_Output_Handle'
             handle = mel.eval('ikHandle -sol ikSplineSolver -ccv false;')
             #MOVE OUTPUT CURVE TO PARENT
@@ -1004,8 +1008,6 @@ class RIGFX:
         :return:
         '''
         rigfx_set_name = ''
-
-
 
         #GET RIGFX FILE
         set_obj = cmds.ls('*.obj_type')
