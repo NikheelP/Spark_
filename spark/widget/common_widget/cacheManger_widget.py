@@ -16,7 +16,8 @@ from spark.department.CFX.cfx_tools import cacheManager
 from spark.department.common import rename
 from spark.department.Help import attribute
 from spark.department.CFX.cfx_tools.rigFX import rigFX_
-for each in [sample_color_variable, sample_widget_template, style_sheet_template, rename, cacheManager, geoCache, help, attribute, rigFX_]:
+from spark.widget import widget_help
+for each in [sample_color_variable, sample_widget_template, style_sheet_template, rename, cacheManager, geoCache, help, attribute, rigFX_, widget_help]:
     reload(each)
 
 from spark.widget.sample.sample_maya_widget import SAMPLE_WIDGET
@@ -28,6 +29,7 @@ from spark.department.Help.geoCache import GEOCACHE
 from spark.department.Help.help import HELP
 from spark.department.Help.attribute import ATTRIBUTE
 from spark.department.CFX.cfx_tools.rigFX.rigFX_ import RIGFX
+from spark.widget.widget_help import WIDGET_HELP
 
 from spark.widget.common_widget import cacheManager_icon
 cacheManagerIconPath = os.path.abspath(cacheManager_icon.__file__).replace('\\', '/')
@@ -47,6 +49,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.help_class = HELP()
         self.attribute_class = ATTRIBUTE()
         self.rig_fx_class = RIGFX()
+        self.widget_help_class = WIDGET_HELP()
 
         self.end_time_val = cmds.playbackOptions(q=True, maxTime=True)
         self.start_time_val = cmds.playbackOptions(q=True, minTime=True)
@@ -167,6 +170,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.lower_widget_splitter = self.sample_widget_template.splitter_def(parent_self=self.lower_widget,
                                                                               set_orientation=self.sample_widget_template.horizonatal)
         lower_widget_vertical_layout.addWidget(self.lower_widget_splitter)
+
         self.comment_widget()
         self.file_status_widget()
 
@@ -1303,9 +1307,9 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         :return:
         '''
-
         self.sim_tree_widget_item['nCloth'] = []
         cfx_list = self.cache_manager_class.get_cfx_list()
+
         for each_cfx_list in cfx_list:
 
             nucleus = QTreeWidgetItem(self.sim_tree_widget)
@@ -1316,21 +1320,23 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                                                    self.color_variable_class.green_color.get_value()[2])))
 
 
-
-
             nucleus_set_obj = each_cfx_list + '_Object'
 
             icon_path, styleSheet_color = self.tree_on_off_icon_color(cmds.getAttr(each_cfx_list + '.enable'))
 
             styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nucleus_set_obj,
                                                                     background_color=styleSheet_color)
-
-            nucleus_button = self.sample_widget_template.pushButton(set_icon=icon_path,
+            
+            nucleus_button = self.sample_widget_template.pushButton(parent_self=self.sim_tree_widget,
+                                                                    set_icon=icon_path,
                                                                     set_icon_size=[20, 20],
                                                                     set_styleSheet=styleSheet,
                                                                     set_object_name=nucleus_set_obj)
 
+            nucleus_button.clicked.connect(partial(self.nucleus_button, each_cfx_list,  nucleus_button))
+
             self.sim_tree_widget.setItemWidget(nucleus, 1, nucleus_button)
+
 
             #CHECK THE NCLOTH
             if self.ncloth_tree_vis:
@@ -1354,10 +1360,11 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                         icon_path, styleSheet_color = self.tree_on_off_icon_color(cmds.getAttr(each_nCloth + '.isDynamic'))
                         styleSheet = self.sample_widget_template.styleSheet_def(obj_name=ncloth_set_obj,
                                                                                 background_color=styleSheet_color)
-                        ncloth_button = self.sample_widget_template.pushButton(set_icon=icon_path,
-                                                                                set_icon_size=[20, 20],
-                                                                                set_styleSheet=styleSheet,
-                                                                                set_object_name=ncloth_set_obj)
+                        ncloth_button = self.sample_widget_template.pushButton(parent_self=self.sim_tree_widget,
+                                                                               set_icon=icon_path,
+                                                                               set_icon_size=[20, 20],
+                                                                               set_styleSheet=styleSheet,
+                                                                               set_object_name=ncloth_set_obj)
                         self.sim_tree_widget.setItemWidget(ncloth_item, 1, ncloth_button)
 
             if self.nConstraint_tree_vis:
@@ -1379,10 +1386,10 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                         icon_path, styleSheet_color = self.tree_on_off_icon_color(cmds.getAttr(each_dynamicConstraint + '.enable'))
                         styleSheet = self.sample_widget_template.styleSheet_def(obj_name=dynamicConstraint_set_obj,
                                                                                 background_color=styleSheet_color)
-                        dynamicConstraint_button = self.sample_widget_template.pushButton(set_icon=icon_path,
-                                                                                set_icon_size=[20, 20],
-                                                                                set_styleSheet=styleSheet,
-                                                                                set_object_name=dynamicConstraint_set_obj)
+                        dynamicConstraint_button = self.sample_widget_template.pushButton(parent_self=self.sim_tree_widget, set_icon=icon_path,
+                                                                                          set_icon_size=[20, 20],
+                                                                                          set_styleSheet=styleSheet,
+                                                                                          set_object_name=dynamicConstraint_set_obj)
                         self.sim_tree_widget.setItemWidget(dynamicConstraint_item, 1, dynamicConstraint_button)
 
             if self.nRigit_tree_vis:
@@ -1404,7 +1411,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                         icon_path, styleSheet_color = self.tree_on_off_icon_color(cmds.getAttr(each_nRigid + '.isDynamic'))
                         styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nRigid_set_obj,
                                                                                 background_color=styleSheet_color)
-                        nRigid_button = self.sample_widget_template.pushButton(set_icon=icon_path,
+                        nRigid_button = self.sample_widget_template.pushButton(parent_self=self.sim_tree_widget,set_icon=icon_path,
                                                                                 set_icon_size=[20, 20],
                                                                                 set_styleSheet=styleSheet,
                                                                                 set_object_name=nRigid_set_obj)
@@ -1434,7 +1441,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                         icon_path, styleSheet_color = self.tree_on_off_icon_color(value)
                         styleSheet = self.sample_widget_template.styleSheet_def(obj_name=hairSystem_set_obj,
                                                                                 background_color=styleSheet_color)
-                        hairSystem_button = self.sample_widget_template.pushButton(set_icon=icon_path,
+                        hairSystem_button = self.sample_widget_template.pushButton(parent_self=self.sim_tree_widget, set_icon=icon_path,
                                                                                 set_icon_size=[20, 20],
                                                                                 set_styleSheet=styleSheet,
                                                                                 set_object_name=hairSystem_set_obj)
@@ -1453,6 +1460,43 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                         hairSystem_item.setExpanded(True)
 
             nucleus.setExpanded(True)
+            
+    def nucleus_button(self, nucleus_name, nucleus_button):
+        '''
+
+        :param nucleus_name:
+        :return:
+        '''
+
+        rgbcolor = nucleus_button.palette().button().color().getRgb()
+        color = [rgbcolor[0], rgbcolor[1], rgbcolor[2]]
+        if color == self.color_variable_class.green_color.get_value():
+            cmds.setAttr(nucleus_name + '.enable', 0)
+            #CHANGE THE COLOR
+
+            icon_path, styleSheet_color = self.tree_on_off_icon_color(cmds.getAttr(nucleus_name + '.enable'))
+            styleSheet = self.sample_widget_template.styleSheet_def(obj_name =nucleus_button.objectName(),
+                                                                    background_color=styleSheet_color)
+            nucleus_button.setStyleSheet(styleSheet)
+            icon = QIcon()
+            icon.addPixmap(QPixmap(icon_path), QIcon.Normal, QIcon.Off)
+            nucleus_button.setIcon(icon)
+
+
+        else:
+            cmds.setAttr(nucleus_name + '.enable', 1)
+            # CHANGE THE COLOR
+
+            icon_path, styleSheet_color = self.tree_on_off_icon_color(cmds.getAttr(nucleus_name + '.enable'))
+            styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nucleus_button.objectName(),
+                                                                    background_color=styleSheet_color)
+            nucleus_button.setStyleSheet(styleSheet)
+            icon = QIcon()
+            icon.addPixmap(QPixmap(icon_path), QIcon.Normal, QIcon.Off)
+            nucleus_button.setIcon(icon)
+
+
+
 
     def sim_tree_widget_def(self):
         '''

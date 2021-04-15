@@ -1,4 +1,6 @@
 import string
+import traceback
+
 import maya.cmds as cmds
 
 class WIDGET_HELP():
@@ -64,3 +66,15 @@ class WIDGET_HELP():
                 a += 1
         if obj:
             cmds.select(obj)
+
+    def dumpException(self, e=None):
+        """
+        Prints out an Exception message with a traceback to the console
+
+        :param e: Exception to print out
+        :type e: Exception
+        """
+        # print("%s EXCEPTION:" % e.__class__.__name__, e)
+        # traceback.print_tb(e.__traceback__)
+        traceback.print_exc()
+

@@ -243,7 +243,7 @@ class SAMPLE_WIDGET_TEMPLATE():
 
 
 
-    def pushButton(self, min_size=[0, 0], max_size=[16777215, 16777215], set_text='', set_object_name='', set_tool_tip='', set_status='', set_icon='', set_icon_size=[0, 0],
+    def pushButton(self, parent_self='', min_size=[0, 0], max_size=[16777215, 16777215], set_text='', set_object_name='', set_tool_tip='', set_status='', set_icon='', set_icon_size=[0, 0],
                    set_styleSheet='''''', setCheckable=False, setChecked=False, setAutoRepeat=False,
                    setAutoExclusive=False, setAutoRepeatDelay=300, setAutoRepeatInterval=100,
                    connect=''):
@@ -258,7 +258,10 @@ class SAMPLE_WIDGET_TEMPLATE():
         @return:
         '''
         #CREATE PUSH BUTTON
-        pushButton = QPushButton()
+        if parent_self == '':
+            pushButton = QPushButton()
+        else:
+            pushButton = QPushButton(parent_self)
 
         #SET MINIMUM SIZE
         pushButton.setMinimumSize(QSize(min_size[0], min_size[1]))

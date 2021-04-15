@@ -39,6 +39,7 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         self.rig_fx_class = RIGFX()
         self.widget_help_class = WIDGET_HELP()
 
+
         self.initUI()
 
     def initUI(self):
@@ -94,11 +95,27 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         #tab widget
         verticalLayout.addWidget(self.tab_widget_def())
 
+    def check_techAnim_exists(self):
+        '''
+
+        :return:
+        '''
+        if self.rig_fx_class.get_obj_type('RigFx'):
+            return True
+        else:
+            return False
+
+
+
     def create_main_widget_def(self):
         '''
 
         :return:
         '''
+        if self.check_techAnim_exists():
+            self.no_techanim_lineedit_lock = True
+            self.no_techanimCloth_lineedit_lock = True
+            self.rigfxname_lock = True
 
         create_main_widget = self.sample_widget_template.widget_def()
         grid_Layout = self.sample_widget_template.grid_layout(parent_self=create_main_widget)
@@ -123,9 +140,7 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         new_value = 0
         vertical_val += 1
 
-        self.no_techanim_lineedit_lock = False
-        self.no_techanimCloth_lineedit_lock = False
-        self.rigfxname_lock = False
+
 
 
         #NO OF THE TECHANIM CLOTH FILE

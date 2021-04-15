@@ -674,6 +674,9 @@ class RIGFX:
             if not cmds.objExists(each):
                 cmds.createNode('transform', n=each)
 
+        for each in [techAnim_Final_Grp, techAnim_Cloth_Final_Grp]:
+            cmds.setAttr(each + '.v', 0)
+
         #DO THE PARENTING
         for each in [input_grp, techAnim_grp, techAnim_Final_Grp, sim_grp, techAnim_Cloth_Grp, techAnim_Cloth_Final_Grp, final_Grp]:
             cmds.parent(each, rig_fx_name)
