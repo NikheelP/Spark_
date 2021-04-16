@@ -333,8 +333,7 @@ class RIGFX:
         if not cmds.objExists(self.techanim_type + '_Grp'):
             raise Exception(self.techanim_type + '_Grp is not Exists')
 
-        #ADD INPUT TAG TO GEO
-        self.help_class.set_type(obj=geo_name, type_val=self.input_type)
+
 
         #GET THE OF THE TECHANIM FILE
         techanim_child_list = cmds.listRelatives(self.techanim_type + '_Grp', c=True)
@@ -411,6 +410,9 @@ class RIGFX:
         blend_shape = cmds.blendShape(blendshape_obj, techanim_final, o='world')[0]
         cmds.setAttr(blend_shape + '.' + blendshape_obj, 1)
 
+        # ADD INPUT TAG TO GEO
+        self.help_class.set_type(obj=geo_name, type_val=self.input_type)
+
         self.update_sets_layer()
 
     def create_hair_rigfx_def(self, hair_list, grp_name, auto_parent_root_joint=False):
@@ -424,12 +426,14 @@ class RIGFX:
 
         new_curve_list = []
         for each in hair_list:
-            self.help_class.set_type(obj=each, type_val=self.input_type)
+
 
             duplicate_name = each + '_Static_Crv'
             new_curve_list.append(duplicate_name)
             cmds.duplicate(each, n=duplicate_name)
             self.help_class.worldBlendshape(each, duplicate_name)
+
+            self.help_class.set_type(obj=each, type_val=self.input_type)
 
         #CREATE A HAIR
         folical_list, output_curve_list, hairSystem_name = self.create_hair(new_curve_list)

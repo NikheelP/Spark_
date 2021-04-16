@@ -174,15 +174,23 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.comment_widget()
         self.file_status_widget()
 
-        #REFRESH BUTTON
-        button_min_height = 30
-        refresh_button_widget = self.sample_widget_template.widget_def(parent_self=self.main_widget,
-                                                                       min_size=[0, button_min_height],
-                                                                       max_size=[self.sample_widget_template.max_size, button_min_height])
-        vertical_layout.addWidget(refresh_button_widget)
+        #CacheManagerData
+        #DELETE CacheManagerData
+        button_min_height = 60
+        delete_cacheManager_button_widget = self.sample_widget_template.widget_def(parent_self=self.main_widget,
+                                                                                   min_size=[0, button_min_height],
+                                                                                   max_size=[self.sample_widget_template.max_size,
+                                                                                             button_min_height])
+        vertical_layout.addWidget(delete_cacheManager_button_widget)
 
-        refresh_vertical_layout = self.sample_widget_template.vertical_layout(parent_self=refresh_button_widget)
+        refresh_vertical_layout = self.sample_widget_template.vertical_layout(parent_self=delete_cacheManager_button_widget)
 
+        #DELETE CACHEMANAGER
+        refresh_button = self.sample_widget_template.pushButton(set_text='Delete CacheManager And RefreshUI',
+                                                                connect=self.delete_cacheManager_def)
+        refresh_vertical_layout.addWidget(refresh_button)
+
+        #REFRESH UI
         refresh_button = self.sample_widget_template.pushButton(set_text='Refresh UI',
                                                                 connect=self.window_show_def)
         refresh_vertical_layout.addWidget(refresh_button)
@@ -233,6 +241,16 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         refresh_everything_pushbutton = self.sample_widget_template.pushButton(set_text=refresh_everything_text)
         vertical_layout.addWidget(refresh_everything_pushbutton)
         '''
+
+    def delete_cacheManager_def(self):
+        '''
+
+        :return:
+        '''
+        name = 'CacheManagerData'
+        if cmds.objExists(name):
+            cmds.delete(name)
+        self.window_show_def()
 
     def window_show_def(self):
         '''
@@ -993,6 +1011,9 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
             data = json.load(f)
             self.update_ui_json_read(data, file_name=item.text(), file_path=file_path, param=False)
 
+    def playblast_list_widget_doubleclicked_def(self):
+        print('Double Clicked ')
+
     def final_cache_list_widget_def(self):
         '''
 
@@ -1124,6 +1145,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.playblast_list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.playblast_list_widget.customContextMenuRequested.connect(self.playblast_list_widget_contexMenu)
         self.playblast_list_widget.itemSelectionChanged.connect(self.playblast_list_widget_def)
+        self.playblast_list_widget.doubleClicked.connect(self.playblast_openFile_def)
         vertical_laout.addWidget(self.playblast_list_widget)
 
         self.set_cache_manger_data()
@@ -1365,6 +1387,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                                                                                set_icon_size=[20, 20],
                                                                                set_styleSheet=styleSheet,
                                                                                set_object_name=ncloth_set_obj)
+                        ncloth_button.clicked.connect(partial(self.nucleus_button, each_nCloth, ncloth_button))
                         self.sim_tree_widget.setItemWidget(ncloth_item, 1, ncloth_button)
 
             if self.nConstraint_tree_vis:
@@ -1390,6 +1413,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                                                                                           set_icon_size=[20, 20],
                                                                                           set_styleSheet=styleSheet,
                                                                                           set_object_name=dynamicConstraint_set_obj)
+                        dynamicConstraint_button.clicked.connect(partial(self.nucleus_button, each_dynamicConstraint, dynamicConstraint_button))
                         self.sim_tree_widget.setItemWidget(dynamicConstraint_item, 1, dynamicConstraint_button)
 
             if self.nRigit_tree_vis:
@@ -1415,6 +1439,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                                                                                 set_icon_size=[20, 20],
                                                                                 set_styleSheet=styleSheet,
                                                                                 set_object_name=nRigid_set_obj)
+                        nRigid_button.clicked.connect(partial(self.nucleus_button, each_nRigid, nRigid_button))
                         self.sim_tree_widget.setItemWidget(nRigid_item, 1, nRigid_button)
 
             if self.nhair_tree_vis:
@@ -1471,10 +1496,18 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         rgbcolor = nucleus_button.palette().button().color().getRgb()
         color = [rgbcolor[0], rgbcolor[1], rgbcolor[2]]
         if color == self.color_variable_class.green_color.get_value():
-            cmds.setAttr(nucleus_name + '.enable', 0)
+            try:
+                cmds.setAttr(nucleus_name + '.enable', 0)
+                val = cmds.getAttr(nucleus_name + '.enable')
+            except:
+                cmds.setAttr(nucleus_name + '.isDynamic', 0)
+                val = cmds.getAttr(nucleus_name + '.isDynamic')
             #CHANGE THE COLOR
 
-            icon_path, styleSheet_color = self.tree_on_off_icon_color(cmds.getAttr(nucleus_name + '.enable'))
+
+
+
+            icon_path, styleSheet_color = self.tree_on_off_icon_color(val)
             styleSheet = self.sample_widget_template.styleSheet_def(obj_name =nucleus_button.objectName(),
                                                                     background_color=styleSheet_color)
             nucleus_button.setStyleSheet(styleSheet)
@@ -1484,10 +1517,14 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
 
         else:
-            cmds.setAttr(nucleus_name + '.enable', 1)
-            # CHANGE THE COLOR
+            try:
+                cmds.setAttr(nucleus_name + '.enable', 1)
+                val = cmds.getAttr(nucleus_name + '.enable')
+            except:
+                cmds.setAttr(nucleus_name + '.isDynamic', 1)
+                val = cmds.getAttr(nucleus_name + '.isDynamic')
 
-            icon_path, styleSheet_color = self.tree_on_off_icon_color(cmds.getAttr(nucleus_name + '.enable'))
+            icon_path, styleSheet_color = self.tree_on_off_icon_color(val)
             styleSheet = self.sample_widget_template.styleSheet_def(obj_name=nucleus_button.objectName(),
                                                                     background_color=styleSheet_color)
             nucleus_button.setStyleSheet(styleSheet)
@@ -1528,15 +1565,24 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.input_list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         input_list = self.rig_fx_class.get_obj_type('Input')
         if input_list:
+            for each_input in input_list:
+                shape = cmds.listRelatives(each_input, s=True)
+                if shape:
+                    self.input_list_widget.addItem(each_input)
+
+            '''
+            print('thi sis input list: ', input_list)
             grp_name = input_list[0]
+            print('this is the grpname: ', grp_name)
             all_input_child = cmds.listRelatives(grp_name, c=True, ad=True, fullPath=True)
+            print('this is inputs: ', all_input_child)
             if all_input_child:
                 for each in all_input_child:
                     if cmds.objectType(each) != 'transform':
                         parent_obj = cmds.listRelatives(each, p=True, fullPath=True)[0]
                         self.input_list_widget.addItem(parent_obj)
 
-
+            '''
         return self.input_list_widget
 
     def input_list_widget_def(self):
@@ -1565,13 +1611,10 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.output_list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         output_list = self.rig_fx_class.get_obj_type('Final')
         if output_list:
-            grp_name = output_list[0]
-            all_input_child = cmds.listRelatives(grp_name, c=True, ad=True, fullPath=True)
-            if all_input_child:
-                for each in all_input_child:
-                    if cmds.objectType(each) != 'transform':
-                        parent_obj = cmds.listRelatives(each, p=True, fullPath=True)[0]
-                        self.output_list_widget.addItem(parent_obj)
+            for each_input in output_list:
+                shape = cmds.listRelatives(each_input, s=True)
+                if shape:
+                    self.output_list_widget.addItem(each_input)
 
         return self.output_list_widget
 
@@ -1601,12 +1644,9 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
             nHair = cmds.ls(type='hairSystem')
             nCloth = cmds.ls(type='nCloth')
-            print('this is ncoth: ', nCloth)
-            print('this is nHair: ', nHair)
             #nCloth.extend(nHair)
-            print(nCloth)
             sel_ncloth = []
-            for each in nCloth:
+            for each in [nCloth, nHair]:
                 sel_ncloth.append(cmds.listRelatives(each, p=True)[0])
 
         else:
@@ -1614,9 +1654,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
             sel_ncloth = cmds.ls(sl=True)
             for each in sel_ncloth:
                 shape = cmds.listRelatives(each, s=True)
-                if cmds.objectType(shape) != 'nCloth':
+                if cmds.objectType(shape) != 'nCloth' or cmds.objectType(shape) != 'hairSystem':
                     sel_ncloth.remove(each)
-
 
         attr_list = {}
         start_val = float(self.sim_start_time_lineedit.text())
@@ -2087,9 +2126,9 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         # GET CACHE IS GOING TO REPLACE OR NOT
         if self.select_ncloth_node_checkbox.isChecked():
-            self.cache_manager_class.delete_ncloth_cache(selected=True)
-        else:
             self.cache_manager_class.delete_ncloth_cache(selected=False)
+        else:
+            self.cache_manager_class.delete_ncloth_cache(selected=True)
 
     def geo_cache_button_def(self):
         '''

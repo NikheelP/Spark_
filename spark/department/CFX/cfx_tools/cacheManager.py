@@ -42,14 +42,17 @@ class CACHEMANAGER:
         :param attr_list: LIST OF THE ATTRIBUTE
         :return:
         '''
+        print('this is bnaclth list: ', ncloth_list)
         if ncloth_list:
             for each in ncloth_list:
                 if cmds.objectType(each) == 'transform':
-                    print('>>>>>>', cmds.objectType(cmds.listRelatives(each, s=True)))
-                    if cmds.objectType(cmds.listRelatives(each, s=True)) != 'nCloth' :
+                    value = cmds.objectType(cmds.listRelatives(each, s=True))
+                    print(value)
+                    if cmds.objectType(cmds.listRelatives(each, s=True)) != 'nCloth' and cmds.objectType(cmds.listRelatives(each, s=True)) != 'hairSystem':
+                        print(value)
                         raise RuntimeError('Please Select nCloth Transform Node to run the cpmmand')
                 else:
-                    if cmds.objectType(each) != 'nCloth':
+                    if cmds.objectType(each) != 'nCloth' or cmds.objectType(each) != 'hairSystem':
                         raise RuntimeError('Please Select nCloth Transform Node to run the cpmmand')
 
 
@@ -304,14 +307,18 @@ class CACHEMANAGER:
 
         new_transform_list = []
         for each in sel_ncloth_nodes:
+            obj_type = cmds.objectType(each)
             #if selected object is ncloth shape node
-            if cmds.objectType(each) == 'nCloth':
+            if cmds.objectType(each) == 'nCloth' or cmds.objectType(each) == 'hairSystem':
                 new_transform_list.append(cmds.listRelatives(each, p=True)[0])
 
             elif cmds.objectType(each) == 'transform':
-                if cmds.objectType(cmds.listRelatives(each, s=True)[0]) == 'nCloth':
+                shape = cmds.listRelatives(each, s=True)[0]
+                shape_obj = cmds.objectType(shape)
+                if cmds.objectType(cmds.listRelatives(each, s=True)[0]) == 'nCloth' or cmds.objectType(cmds.listRelatives(each, s=True)[0]) == 'hairSystem':
                     new_transform_list.append(each)
                 else:
+                    print('this is the one')
                     raise Exception('i have Found some of the other Transform node than nCloth please do only Select nCloth transofrm or shape Node')
 
             else:
@@ -368,7 +375,6 @@ class CACHEMANAGER:
             #GET THE SIM CACHE PATH
 
 
-            print('this is sim cache dir', sim_cache_dir)
             return sim_cache_dir, geo_cache_dir, playblast_cache_dir, final_cache_dir, manual_cache_dir
 
 

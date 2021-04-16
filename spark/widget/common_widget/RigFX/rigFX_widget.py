@@ -8,13 +8,17 @@ from spark.department.common import rename
 from spark.department.CFX.cfx_tools.rigFX import rigFX_
 from spark.department.common import Outliner
 from spark.widget import widget_help
-for each in [sample_color_variable, sample_widget_template, style_sheet_template, rename, rigFX_, widget_help, Outliner]:
+from spark.department import help as depHelp
+
+for each in [sample_color_variable, sample_widget_template, style_sheet_template, rename, rigFX_, widget_help, Outliner, depHelp]:
     reload(each)
 
 from spark.widget.sample.sample_maya_widget import SAMPLE_WIDGET
 from spark.department.CFX.cfx_tools.rigFX.rigFX_ import RIGFX
 from spark.widget.widget_help import WIDGET_HELP
 from spark.department.common.Outliner import outlinerWidget
+from spark.department.help import HELP as DEPHELP
+
 
 from spark.widget.common_widget import rigFX_icon
 rigFxIconPath = os.path.abspath(rigFX_icon.__file__).replace('\\', '/')
@@ -37,6 +41,7 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         self.validator = QDoubleValidator()
 
         self.rig_fx_class = RIGFX()
+        self.help_class = DEPHELP()
         self.widget_help_class = WIDGET_HELP()
 
 
@@ -741,6 +746,15 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
                                                              connect=self.skinBin_jnt_def)
         vericalLayout.addWidget(skinBin_jnt)
 
+        # Set Final Label
+        final_tag_text = 'Set Final tag'
+        final_tag_tooolTip = 'Set a Final Tag'
+        final_tag = self.sample_widget_template.pushButton(set_text=final_tag_text,
+                                                             set_tool_tip=final_tag_tooolTip,
+                                                             connect=self.final_tag_def)
+        vericalLayout.addWidget(final_tag)
+
+
 
         '''
         #IMPORT CLOTH RIG
@@ -1092,6 +1106,11 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         from spark.widget.common_widget.RigFX.skinBindJnt import SKINBINDJNT
         skinBindJnt_class = SKINBINDJNT()
         skinBindJnt_class.show()
+
+    def final_tag_def(self):
+        sel_obj = cmds.ls(sl=True)
+        for each in sel_obj:
+            self.help_class.set_type(each, type_val=self.rig_fx_class.final_type)
 
 
 
