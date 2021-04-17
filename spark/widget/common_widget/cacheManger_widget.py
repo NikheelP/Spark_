@@ -865,6 +865,10 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.sim_end_time_lineedit.textChanged.connect(self.sim_end_time_lineedit_def)
         horizontal_layout.addWidget(self.sim_end_time_lineedit)
 
+        self.sim_cache_path_checkbox = self.sample_widget_template.checkbox(set_text='Cache Path Lock',
+                                                                            set_checked=True,
+                                                                            stateChanged=self.sim_cache_path_checkbox_def)
+        vertical_laout.addWidget(self.sim_cache_path_checkbox)
 
         ####################################
         #CACHE PATH WIDGET
@@ -880,6 +884,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.cache_path_lineedit = self.sample_widget_template.line_edit(set_text=self.sim_cache_path)
 
         self.cache_path_lineedit.textChanged.connect(self.cache_path_lineedit_def)
+        self.cache_path_lineedit.setDisabled(True)
         horizontal_layout.addWidget(self.cache_path_lineedit)
 
         cache_path_button = self.sample_widget_template.pushButton(set_text='...',
@@ -904,6 +909,57 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.update_sim_cache_listwidget()
 
         return widget
+
+    def sim_cache_path_checkbox_def(self):
+        '''
+
+        :return:
+        '''
+        if self.sim_cache_path_checkbox.isChecked():
+            self.cache_path_lineedit.setDisabled(True)
+        else:
+            self.cache_path_lineedit.setDisabled(False)
+
+    def geo_cache_path_checkbox_def(self):
+        '''
+
+        :return:
+        '''
+        if self.geo_cache_path_checkbox.isChecked():
+            self.geo_cache_lineedit.setDisabled(True)
+        else:
+            self.geo_cache_lineedit.setDisabled(False)
+
+    def playblast_path_checkbox_def(self):
+        '''
+
+        :return:
+        '''
+        if self.playblast_path_checkbox.isChecked():
+            self.playblast_path_lineedit.setDisabled(True)
+        else:
+            self.playblast_path_lineedit.setDisabled(False)
+
+    def final_cache_path_checkbox_def(self):
+        '''
+
+        :return:
+        '''
+        if self.final_cache_path_checkbox.isChecked():
+            self.final_cache_path_lineedit.setDisabled(True)
+        else:
+            self.final_cache_path_lineedit.setDisabled(False)
+
+    def manual_cache_path_checkbox_def(self):
+        '''
+
+        :return:
+        '''
+        if self.manual_cache_path_checkbox.isChecked():
+            self.manual_cache_path_lineedit.setDisabled(True)
+        else:
+            self.manual_cache_path_lineedit.setDisabled(False)
+
 
     def geo_cache_history_def(self):
         '''
@@ -947,6 +1003,10 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.geo_end_time_lineedit.textChanged.connect(self.geo_end_time_lineedit_def)
         horizontal_layout.addWidget(self.geo_end_time_lineedit)
 
+        self.geo_cache_path_checkbox = self.sample_widget_template.checkbox(set_text='Cache Path Lock',
+                                                                            set_checked=True,
+                                                                            stateChanged=self.geo_cache_path_checkbox_def)
+        vertical_laout.addWidget(self.geo_cache_path_checkbox)
 
         ####################################
         #CACHE PATH WIDGET
@@ -961,6 +1021,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         self.geo_cache_lineedit = self.sample_widget_template.line_edit(set_text=self.geo_cache_path)
         self.geo_cache_lineedit.textChanged.connect(self.geo_cache_lineedit_def)
+        self.geo_cache_lineedit.setDisabled(True)
         horizontal_layout.addWidget(self.geo_cache_lineedit)
 
         #GEO CACH BROWSE
@@ -1085,6 +1146,11 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.playblast_end_time_lineedit.textChanged.connect(self.playblast_end_time_lineedit_def)
         horizontal_layout.addWidget(self.playblast_end_time_lineedit)
 
+        self.playblast_path_checkbox = self.sample_widget_template.checkbox(set_text='Playblast Path Lock',
+                                                                            set_checked=True,
+                                                                            stateChanged=self.playblast_path_checkbox_def)
+        vertical_laout.addWidget(self.playblast_path_checkbox)
+
         ####################################
         #CACHE PATH WIDGET
         cache_path_widget = self.sample_widget_template.widget_def()
@@ -1098,6 +1164,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         self.playblast_path_lineedit = self.sample_widget_template.line_edit(set_text=self.playblast_cache_path)
         self.playblast_path_lineedit.textChanged.connect(self.playblast_path_lineedit_def)
+        self.playblast_path_lineedit.setDisabled(True)
         horizontal_layout.addWidget(self.playblast_path_lineedit)
 
         # PLAYBLAST BROWSE
@@ -1202,6 +1269,10 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.final_end_time_lineedit.textChanged.connect(self.final_end_time_lineedit_def)
         horizontal_layout.addWidget(self.final_end_time_lineedit)
 
+        self.final_cache_path_checkbox = self.sample_widget_template.checkbox(set_text='Final Cache Path Lock',
+                                                                            set_checked=True,
+                                                                            stateChanged=self.final_cache_path_checkbox_def)
+        vertical_laout.addWidget(self.final_cache_path_checkbox)
 
         ####################################
         #CACHE PATH WIDGET
@@ -1216,6 +1287,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         self.final_cache_path_lineedit = self.sample_widget_template.line_edit(set_text=self.final_cache_path)
         self.final_cache_path_lineedit.textChanged.connect(self.final_cache_path_lineedit_def)
+        self.final_cache_path_lineedit.setDisabled(True)
         horizontal_layout.addWidget(self.final_cache_path_lineedit)
 
         #FINAL CACHE BROWSE
@@ -1279,6 +1351,12 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.manual_end_time_lineedit.textChanged.connect(self.manual_end_time_lineedit_def)
         horizontal_layout.addWidget(self.manual_end_time_lineedit)
 
+        self.manual_cache_path_checkbox = self.sample_widget_template.checkbox(set_text='Final Cache Path Lock',
+                                                                              set_checked=True,
+                                                                              stateChanged=self.manual_cache_path_checkbox_def)
+        vertical_laout.addWidget(self.manual_cache_path_checkbox)
+
+
         ####################################
         # CACHE PATH WIDGET
         cache_path_widget = self.sample_widget_template.widget_def()
@@ -1292,6 +1370,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         self.manual_cache_path_lineedit = self.sample_widget_template.line_edit(set_text=self.manual_cache_path)
         self.manual_cache_path_lineedit.textChanged.connect(self.manual_cache_path_lineedit_def)
+        self.manual_cache_path_lineedit.setDisabled(True)
         horizontal_layout.addWidget(self.manual_cache_path_lineedit)
 
         # MANUAL CACHE BROWSE
@@ -1647,7 +1726,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
             #nCloth.extend(nHair)
             sel_ncloth = []
             for each in [nCloth, nHair]:
-                sel_ncloth.append(cmds.listRelatives(each, p=True)[0])
+                if each:
+                    sel_ncloth.append(cmds.listRelatives(each, p=True)[0])
 
         else:
             selected_val = True
@@ -2107,7 +2187,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.sim_cache_list_widget.clear()
         # now add all the object into the list
         mc_file_list = []
-        onlyfiles = [f for f in listdir(self.sim_cache_path) if isfile(join(self.sim_cache_path, f))]
         files = list(filter(os.path.isfile, glob.glob(self.sim_cache_path + "/*")))
         files.sort(key=lambda x: os.path.getmtime(x))
 
@@ -2319,7 +2398,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         :return:
         '''
         folder = str(QFileDialog.getExistingDirectory(self, "Select Directory", self.sim_cache_path))
-        self.cache_path_lineedit.setText(folder)
+        if folder:
+            self.cache_path_lineedit.setText(folder)
 
 
     def geo_start_time_lineedit_def(self):
@@ -2345,7 +2425,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         :return:
         '''
         folder = str(QFileDialog.getExistingDirectory(self, "Select Directory", self.geo_cache_path))
-        self.geo_cache_lineedit.setText(folder)
+        if folder:
+            self.geo_cache_lineedit.setText(folder)
 
     def playblast_path_browse_button_def(self):
         '''

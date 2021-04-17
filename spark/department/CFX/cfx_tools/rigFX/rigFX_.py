@@ -560,7 +560,7 @@ class RIGFX:
 
         self.help_class.set_type(obj=obj_name, type_val=self.input_type)
 
-        collution_obj = obj_name + '_Collution'
+        collution_obj = obj_name + '_Collusion'
         collution_nrigit_name = collution_obj + '_nRigit'
 
         cmds.duplicate(obj_name, n=collution_obj)
