@@ -356,6 +356,7 @@ class RIGFX:
         techanim_final = 'TechAnim_Final_' + geo_name
         cmds.duplicate(geo_name, n=techanim_final)
         cmds.parent(techanim_final, techanim_final_grp)
+        self.help_class.set_type(obj=techanim_final, type_val=self.techanim_final_type)
 
         blend_shape = cmds.blendShape(blendshape_obj, techanim_final, o='world')[0]
         cmds.setAttr(blend_shape + '.' + blendshape_obj, 1)
@@ -398,6 +399,7 @@ class RIGFX:
             cmds.duplicate(geo_name, n=techanim_cloth_geo_name)
             cmds.parent(techanim_cloth_geo_name, each)
             blend_shape = cmds.blendShape(blendshape_obj, techanim_cloth_geo_name, o='world')[0]
+            self.help_class.set_type(obj=techanim_cloth_geo_name, type_val=name)
 
             cmds.setAttr(blend_shape + '.' + blendshape_obj, 1)
             blendshape_obj = techanim_cloth_geo_name
@@ -409,6 +411,7 @@ class RIGFX:
         cmds.parent(techanim_final, techanim_final_grp)
         blend_shape = cmds.blendShape(blendshape_obj, techanim_final, o='world')[0]
         cmds.setAttr(blend_shape + '.' + blendshape_obj, 1)
+        self.help_class.set_type(obj=techanim_final, type_val=self.techanim_cloth_final_type)
 
         # ADD INPUT TAG TO GEO
         self.help_class.set_type(obj=geo_name, type_val=self.input_type)

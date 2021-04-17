@@ -158,9 +158,7 @@ class RENAME_WIDGET(SAMPLE_WIDGET):
     def sample_button_widget(self, val='Prefix'):
         sample_button_gridLayout = self.sample_widget_template.grid_layout()
 
-        sample_name_list = ['_Obj', '_Grp', '_LOC', '_Jnt', 'CluHandle', '_Cloth', '_Hair', '_Const', '_SkinBind_Jnt',
-                            '_SkinBind_Const_LOC',
-                            '_First_Ctrl', '_Secound_Ctrl', '_Third_Ctrl', '_Ctrl']
+        sample_name_list = ['_Geo', '_Grp', '_LOC', '_Jnt', '_Clu', '_CluHandle', '_Const', '_Ctrl', '_Crv', ]
         new_value = 0
         vertical_val = 0
         a = 0
