@@ -17,19 +17,19 @@ from spark.department.common import rename
 from spark.department.Help import attribute
 from spark.department.CFX.cfx_tools.rigFX import rigFX_
 from spark.widget import widget_help
-for each in [sample_color_variable, sample_widget_template, style_sheet_template, rename, cacheManager, geoCache, help, attribute, rigFX_, widget_help]:
+from spark.widget.common_widget.cacheManger_widget_ import playblast_setting
+for each in [sample_color_variable, sample_widget_template, style_sheet_template, rename, cacheManager, geoCache, help, attribute, rigFX_, widget_help,
+             playblast_setting]:
     reload(each)
 
 from spark.widget.sample.sample_maya_widget import SAMPLE_WIDGET
-from spark.widget.sample.sample_widget_template import SAMPLE_WIDGET_TEMPLATE
-from spark.widget.sample.sample_color_variable import COLOR_VARIABLE
-from spark.department.common.rename import RENAME
 from spark.department.CFX.cfx_tools.cacheManager import CACHEMANAGER
 from spark.department.Help.geoCache import GEOCACHE
 from spark.department.Help.help import HELP
 from spark.department.Help.attribute import ATTRIBUTE
 from spark.department.CFX.cfx_tools.rigFX.rigFX_ import RIGFX
 from spark.widget.widget_help import WIDGET_HELP
+from spark.widget.common_widget.cacheManger_widget_.playblast_setting import PLAYBLAST_SETTING
 
 from spark.widget.common_widget import cacheManager_icon
 cacheManagerIconPath = os.path.abspath(cacheManager_icon.__file__).replace('\\', '/')
@@ -50,6 +50,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.attribute_class = ATTRIBUTE()
         self.rig_fx_class = RIGFX()
         self.widget_help_class = WIDGET_HELP()
+
 
         self.end_time_val = cmds.playbackOptions(q=True, maxTime=True)
         self.start_time_val = cmds.playbackOptions(q=True, minTime=True)
@@ -73,6 +74,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
             self.cam_list.append(cmds.listRelatives(each, p=True)[0])
 
         self.float_validator = QDoubleValidator()
+
 
         #CACHE MANAER NODE
         self.cache_manager_data = 'CacheManagerData'
@@ -161,8 +163,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.cloth_input_output_widget()
         self.cloth_button_widget()
         self.cache_playblast_history_widget()
-
-
 
         self.lower_widget = self.sample_widget_template.widget_def(parent_self=main_horizonatal_splitter,
                                                               min_size=[0, 100])
@@ -258,10 +258,9 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         :return:
         '''
         self.close()
-
-        from spark.widget.common_widget import cacheManger_widget
-        reload(cacheManger_widget)
-        from spark.widget.common_widget.cacheManger_widget import CACHEMANGER_WIDGET
+        #from spark.widget.common_widget.cacheManger_widget_ import cacheManger_widget
+        #reload(cacheManger_widget)
+        #from spark.widget.common_widget.cacheManger_widget_.cacheManger_widget import CACHEMANGER_WIDGET
         cache_mager_class = CACHEMANGER_WIDGET()
         cache_mager_class.show()
 
@@ -587,6 +586,9 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
             cmds.setAttr((self.cache_manager_data + '.hideOnPlayback'), 1)
             cmds.setAttr((self.cache_manager_data + '.hiddenInOutliner'), 1)
+
+            #
+
 
             #SET THE ATTRIBUTE
             self.set_cache_manger_data()
@@ -1188,9 +1190,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         new_value += 1
 
         #CAMERA COMBOXBOX
-
-
-
         self.camera_combobox = self.sample_widget_template.comboBox(addItems=self.cam_list)
 
         self.camera_combobox.currentIndexChanged.connect(self.camera_combobox_def)
@@ -1200,7 +1199,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         #PLAUBLAST SETTING BUTTON
         playblast_setting_button_text = 'Playblast Setting'
-        playblast_setting_button = self.sample_widget_template.pushButton(set_text=playblast_setting_button_text)
+        playblast_setting_button = self.sample_widget_template.pushButton(set_text=playblast_setting_button_text,
+                                                                          connect=self.playblast_setting_button_def)
         grid_layout.addWidget(playblast_setting_button, vertical_val, new_value, 1, 2)
         new_value += 1
 
@@ -1834,7 +1834,9 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         json_name = name + '.json'
 
 
-        cmds.playblast(format='qt', forceOverwrite=True, p=100, sequenceTime=0, clearCache=True, viewer=True, showOrnaments=True, s="ohNo", compression='H.264', quality=100, f=file_name, framePadding=4)
+
+        cmds.playblast(format=self.playblast_setting.playblast_format, forceOverwrite=True, p=self.playblast_setting.percent, sequenceTime=0, clearCache=True, viewer=True, showOrnaments=True, s="ohNo",
+                       compression=self.playblast_setting.encodeing, quality=self.playblast_setting.quality, f=file_name, framePadding=self.playblast_setting.frame_padding)
 
         for each_panel in all_panel:
             cmds.modelEditor(each_panel, e=True, alo=True)
@@ -2077,8 +2079,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                     if each == 'GeoList':
                         cmds.select(data[each])
 
-
-
     def playblast_explore_folder_def(self):
         '''
         exporing the folder
@@ -2164,8 +2164,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         nucleus.setText(0, each_cfx_list)
         '''
 
-
-
     def cache_path_lineedit_def(self):
         '''
 
@@ -2175,8 +2173,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         self.update_sim_cache_listwidget()
         self.set_cache_manger_data()
-
-
 
     def update_sim_cache_listwidget(self):
         '''
@@ -2283,7 +2279,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
                 item = QListWidgetItem(split_.split('.')[0])
                 self.geo_cache_list_widget.addItem(item)
 
-
     def update_playblast_list_widget(self):
         '''
 
@@ -2325,14 +2320,10 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         '''
         self.manual_cache_list_widget.clear()
         # now add all the object into the list
-
-
         folder = os.listdir(self.manual_cache_path)
         for each in folder:
             item = QListWidgetItem(each)
             self.manual_cache_list_widget.addItem(item)
-
-
 
     def geo_json_file_create(self, geo_list, name):
         '''
@@ -2415,7 +2406,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         :return:
         '''
-        print('ascacac')
         self.geo_cache_end_val = float(self.geo_end_time_lineedit.text())
         self.set_cache_manger_data()
 
@@ -2562,13 +2552,15 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         sim_start_val = self.sim_end_time_lineedit.text()
         self.sim_end_val = float(sim_start_val)
 
-
         self.set_cache_manger_data()
 
+    def playblast_setting_button_def(self):
+        '''
 
-
-
-
-
+        :return:
+        '''
+        self.playblast_setting = PLAYBLAST_SETTING()
+        #self.playblast_setting.show()
+        pass
 
 

@@ -272,9 +272,9 @@ class COMMON_WIDGET():
 
         :return:
         '''
-        from spark.widget.common_widget import cacheManger_widget
+        from spark.widget.common_widget.cacheManger_widget_ import cacheManger_widget
         reload(cacheManger_widget)
-        from spark.widget.common_widget.cacheManger_widget import CACHEMANGER_WIDGET
+        from spark.widget.common_widget.cacheManger_widget_.cacheManger_widget import CACHEMANGER_WIDGET
         cache_mager_class = CACHEMANGER_WIDGET()
         window = cache_mager_class.window_show_def()
 
