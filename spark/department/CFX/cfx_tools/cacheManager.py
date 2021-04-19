@@ -46,9 +46,7 @@ class CACHEMANAGER:
             for each in ncloth_list:
                 if cmds.objectType(each) == 'transform':
                     value = cmds.objectType(cmds.listRelatives(each, s=True))
-                    print(value)
                     if cmds.objectType(cmds.listRelatives(each, s=True)) != 'nCloth' and cmds.objectType(cmds.listRelatives(each, s=True)) != 'hairSystem':
-                        print(value)
                         raise RuntimeError('Please Select nCloth Transform Node to run the cpmmand')
                 else:
                     if cmds.objectType(each) != 'nCloth' or cmds.objectType(each) != 'hairSystem':
@@ -71,7 +69,6 @@ class CACHEMANAGER:
             if '-' in file_name:
                 file_name = file_name.replace('-', '_')
 
-            print('this is ncloth list: ', ncloth_list)
             cmds.select(ncloth_list)
             try:
                 mel.eval('deleteCacheFile 2 { "keep", "" } ;')
@@ -96,83 +93,6 @@ class CACHEMANAGER:
 
 
 
-
-
-
-
-        '''
-        
-        if selected:
-            sel_ncloth_nodes = cmds.ls(sl=True)
-        else:
-            sel_ncloth_nodes = cmds.ls(type='nCloth')
-
-
-        if not sel_ncloth_nodes:
-            raise Exception('Please Select atlease nCloth transform or nCloth Shape node to run the command')
-
-        new_transform_list = []
-        for each in sel_ncloth_nodes:
-            #if selected object is ncloth shape node
-            if cmds.objectType(each) == 'nCloth':
-                new_transform_list.append(cmds.listRelatives(each, p=True)[0])
-
-            elif cmds.objectType(each) == 'transform':
-                if cmds.objectType(cmds.listRelatives(each, s=True)[0]) == 'nCloth':
-                    new_transform_list.append(each)
-                else:
-                    raise Exception('i have Found some of the other Transform node than nCloth please do only Select nCloth transofrm or shape Node')
-
-            else:
-                raise Exception('i Found Some of the other Shape node than nCloth Please only Select nCloth Shape node or Transform Node')
-
-        #get the attr_val and put in the list
-        attr_list_val = self.get_ncloth_nRigit_nConstraint_nHair_value()
-
-        attr_list_val['Notes'] = notes
-
-        #DELETE EXISTING CAHCE IF ANY
-
-        cmds.select(new_transform_list)
-        try:
-            mel.eval('deleteCacheFile 2 { "keep", "" } ;')
-        except:
-            pass
-
-
-        #SET THE WORK DIRECTORY AND SAVE THE CACHE IN THAT SO WE CAN QUERY FROMT HERE
-
-
-
-        current_start_frame, current_end_frame = self.set_frames(new_start_frame=sim_start_frame,
-                                                                 new_end_frame=sim_end_frame)
-
-        ncloth_folder_name = self.sim_cache_path
-        onlyfiles = [f for f in listdir(ncloth_folder_name) if isfile(join(ncloth_folder_name, f))]
-        file_path_list = []
-
-        for each in onlyfiles:
-            if 'mc' in each:
-                if self.get_file_name() in each:
-                    file_path_list.append(each)
-        file_name = self.get_file_name() + '_' + str(len(file_path_list))
-        if '-' in file_name:
-            file_name = file_name.replace('-', '_')
-        cache_file_name = mel.eval('doCreateNclothCache 4 { "2", "1", "10", "OneFile", "1", "%s","0","%s","1", "add", "0", "1", "1","0","1" };' % (ncloth_folder_name, file_name))[0]
-        print('')
-
-        print('this is the attr_val: ', attr_list_val)
-        #write the file
-        print(cache_file_name)
-        json_path = ncloth_folder_name + '/' + cache_file_name.split('/')[-1].split('.')[0] + '.json'
-        with open(json_path, 'w') as f:
-            json.dump(attr_list_val, f)
-
-        cmds.playbackOptions(minTime=current_start_frame, maxTime=current_end_frame)
-
-
-        print('Cache is going to generate')
-        '''
 
 
     def get_ncloth_nRigit_nConstraint_nHair_value(self):
@@ -329,7 +249,6 @@ class CACHEMANAGER:
                 if cmds.objectType(cmds.listRelatives(each, s=True)[0]) == 'nCloth' or cmds.objectType(cmds.listRelatives(each, s=True)[0]) == 'hairSystem':
                     new_transform_list.append(each)
                 else:
-                    print('this is the one')
                     raise Exception('i have Found some of the other Transform node than nCloth please do only Select nCloth transofrm or shape Node')
 
             else:

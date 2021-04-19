@@ -1728,7 +1728,6 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
             for each in [nCloth, nHair]:
                 if each:
                     for each_obj in each:
-                        print('this is the ach: ', each)
                         sel_ncloth.append(cmds.listRelatives(each_obj, p=True)[0])
 
         else:
@@ -1943,7 +1942,7 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         item = self.sim_cache_list_widget.selectedItems()[0]
         json_path = self.sim_cache_path + '/' + item.text() + '.json'
 
-        file_path = json_path.replace('json', 'mc')
+        file_path = json_path.replace('json', 'mcx')
 
         with open(json_path) as f:
             data = json.load(f)
