@@ -1727,7 +1727,9 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
             sel_ncloth = []
             for each in [nCloth, nHair]:
                 if each:
-                    sel_ncloth.append(cmds.listRelatives(each, p=True)[0])
+                    for each_obj in each:
+                        print('this is the ach: ', each)
+                        sel_ncloth.append(cmds.listRelatives(each_obj, p=True)[0])
 
         else:
             selected_val = True

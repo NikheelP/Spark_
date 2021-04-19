@@ -42,7 +42,6 @@ class CACHEMANAGER:
         :param attr_list: LIST OF THE ATTRIBUTE
         :return:
         '''
-        print('this is bnaclth list: ', ncloth_list)
         if ncloth_list:
             for each in ncloth_list:
                 if cmds.objectType(each) == 'transform':
@@ -68,16 +67,26 @@ class CACHEMANAGER:
                 if 'mc' in each:
                     if self.get_file_name() in each:
                         file_path_list.append(each)
-            file_name = self.get_file_name() + '_' + str(len(file_path_list)) + '_Sim_Cache'
+            file_name = self.get_file_name() + '_' + str(len(file_path_list) + 1) + '_Sim_Cache'
             if '-' in file_name:
                 file_name = file_name.replace('-', '_')
 
+            print('this is ncloth list: ', ncloth_list)
             cmds.select(ncloth_list)
             try:
                 mel.eval('deleteCacheFile 2 { "keep", "" } ;')
             except:
                 pass
-            cache_file_name = mel.eval('doCreateNclothCache 4 { "2", "1", "10", "OneFile", "1", "%s","0","%s","1", "add", "0", "1", "1","0","1" };' % (sim_path, file_name))[0]
+
+
+            #doCreateNclothCache 5 { "2", "1", "10", "OneFile", "1", "C:/Users/nikheel.p/Desktop/Test/ShotCacheTest","0","another","0", "add", "0", "1", "1","0","1","mcx" } ;
+
+            #cacheFile -attachFile -fileName "another" -directory "C:/Users/nikheel.p/Desktop/Test/ShotCacheTest/"  -cnm "Something_001_nClothShape" -cnm "Something_002_nClothShape" -ia Something_001_nClothShape.positions -ia Something_002_nClothShape.positions;
+
+            #cache_file_name = mel.eval('doCreateNclothCache 4 { "2", "1", "10", "OneFile", "1", "%s","0","%s","1", "add", "0", "1", "1","0","1" };' % (sim_path, file_name))[0]
+            cache_file_name = mel.eval('doCreateNclothCache 5 { "2", "1", "10", "OneFile", "1", "%s","0","%s","0", "add", "0", "1", "1","0","1","mcx" } ;' % (sim_path, file_name))[0]
+
+
 
             json_path = sim_path + '/' + cache_file_name.split('/')[-1].split('.')[0] + '.json'
             with open(json_path, 'w') as f:
