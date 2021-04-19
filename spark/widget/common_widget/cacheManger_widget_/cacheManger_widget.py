@@ -131,6 +131,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         self.ui()
 
+        self.tree_checkbox_def()
+
 
     def ui(self):
         '''
@@ -1932,21 +1934,20 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         cmds.playbackOptions(minTime=current_start_frame, maxTime=current_end_frame)
 
-
-
     def sim_cache_list_widget_def(self):
         '''
 
         :return:
         '''
-        item = self.sim_cache_list_widget.selectedItems()[0]
-        json_path = self.sim_cache_path + '/' + item.text() + '.json'
+        item = self.sim_cache_list_widget.selectedItems()
+        if item:
+            json_path = self.sim_cache_path + '/' + item[0].text() + '.json'
 
-        file_path = json_path.replace('json', 'mcx')
+            file_path = json_path.replace('json', 'mcx')
 
-        with open(json_path) as f:
-            data = json.load(f)
-            self.update_ui_json_read(data, file_name=item.text(), file_path=file_path)
+            with open(json_path) as f:
+                data = json.load(f)
+                self.update_ui_json_read(data, file_name=item[0].text(), file_path=file_path)
 
     def sim_cache_list_widget_contexMenu(self, position):
         # Popup menu
