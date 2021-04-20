@@ -1836,10 +1836,17 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         file_name = name + '.mov'
         json_name = name + '.json'
 
+        self.playblast_format_list = ['qt', 'avi', 'image']
+        self.playblast_format = self.playblast_format_list[0]
+        self.encodeing_list = ['Planer RGB', 'Sorenson Video', 'Sorenson Video 3', 'BMP', 'H.264', 'Cinepak',
+                               'DV/DVCPRO-NTSC', 'DV-PAL']
+        self.encodeing = self.encodeing_list[4]
+        self.quality = 100
+        self.frame_padding = 4
+        self.percent = 100
 
-
-        cmds.playblast(format=self.playblast_setting.playblast_format, forceOverwrite=True, p=self.playblast_setting.percent, sequenceTime=0, clearCache=True, viewer=True, showOrnaments=True, s="ohNo",
-                       compression=self.playblast_setting.encodeing, quality=self.playblast_setting.quality, f=file_name, framePadding=self.playblast_setting.frame_padding)
+        cmds.playblast(format=self.playblast_format, forceOverwrite=True, p=self.percent, sequenceTime=0, clearCache=True, viewer=True, showOrnaments=True, s="ohNo",
+                       compression=self.encodeing, quality=self.quality, f=file_name, framePadding=self.frame_padding)
 
         for each_panel in all_panel:
             cmds.modelEditor(each_panel, e=True, alo=True)
