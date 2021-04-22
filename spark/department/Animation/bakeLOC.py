@@ -94,9 +94,6 @@ class BAKELOC(SAMPLE_WIDGET):
         cmds.playbackOptions(minTime=self.startTime)
         cmds.playbackOptions(maxTime=self.endTime)
 
-        print('this is the start time: ', self.startTime)
-        print('this is the start time: ', self.endTime)
-
         mel.eval('doBakeSimulationArgList 8 { "1","0","10","1","0","0","1","1","0","1","animationList","0","0","0","0","0","1","0","1" };')
 
         parent_const_name =  loc_name + '_parentConstraint1'
