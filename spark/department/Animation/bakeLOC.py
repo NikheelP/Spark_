@@ -56,7 +56,7 @@ class BAKELOC(SAMPLE_WIDGET):
         grid_layout.addWidget(ctrl_name_label, vertical_val, new_value, 1, 1)
         new_value += 1
 
-        self.ctrl_lineedit = self.sample_widget_template.line_edit(set_PlaceholderText='Controller Name')
+        self.ctrl_lineedit = self.sample_widget_template.line_edit(set_PlaceholderText='select Bunch of Control or One Control')
         grid_layout.addWidget(self.ctrl_lineedit, vertical_val, new_value, 1, 2)
         new_value += 1
 
@@ -78,27 +78,31 @@ class BAKELOC(SAMPLE_WIDGET):
 
         :return:
         '''
-        ctrl_name = self.ctrl_lineedit.text()
-        loc_name = ctrl_name + '_LOC'
-        if not cmds.objExists(loc_name):
-            cmds.spaceLocator(n=loc_name)
-
-
-
-        cmds.parentConstraint(ctrl_name, loc_name, mo=False)
-        cmds.scaleConstraint(ctrl_name, loc_name, mo=False)
-
+        ctrl_list = self.ctrl_lineedit.text().split(' ')
         startTime = cmds.playbackOptions(q=True, minTime=True)
         endTime = cmds.playbackOptions(q=True, maxTime=True)
 
-        cmds.playbackOptions(minTime=self.startTime)
-        cmds.playbackOptions(maxTime=self.endTime)
+        for each in ctrl_list:
+            if each != '':
+                loc_name = each + '_LOC'
+                if not cmds.objExists(loc_name):
+                    cmds.spaceLocator(n=loc_name)
 
-        mel.eval('doBakeSimulationArgList 8 { "1","0","10","1","0","0","1","1","0","1","animationList","0","0","0","0","0","1","0","1" };')
 
-        parent_const_name =  loc_name + '_parentConstraint1'
-        scale_const_name =  loc_name + '_scaleConstraint1'
-        cmds.delete([parent_const_name, scale_const_name])
+
+                cmds.parentConstraint(each, loc_name, mo=False)
+                cmds.scaleConstraint(each, loc_name, mo=False)
+
+
+
+                cmds.playbackOptions(minTime=self.startTime)
+                cmds.playbackOptions(maxTime=self.endTime)
+
+                mel.eval('doBakeSimulationArgList 8 { "1","0","10","1","0","0","1","1","0","1","animationList","0","0","0","0","0","1","0","1" };')
+
+                parent_const_name =  loc_name + '_parentConstraint1'
+                scale_const_name = loc_name + '_scaleConstraint1'
+                cmds.delete([parent_const_name, scale_const_name])
 
 
         cmds.playbackOptions(minTime=startTime)
@@ -126,6 +130,10 @@ class BAKELOC(SAMPLE_WIDGET):
         '''
         sel_obj = cmds.ls(sl=True)
         if sel_obj:
-            self.ctrl_lineedit.setText(sel_obj[0])
+            string_val = ''
+            for each in sel_obj:
+                string_val = string_val + each + ' '
+
+            self.ctrl_lineedit.setText(string_val)
 
 
