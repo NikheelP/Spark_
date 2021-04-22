@@ -3,17 +3,6 @@ import maya.OpenMayaMPx as OpenMayaMPx
 import maya.OpenMaya as OpenMaya
 import maya.cmds as cmds
 
-from spark.department.Help import deformer
-
-for each in [deformer]:
-    reload(each)
-
-
-from spark.department.Help import DEFORMER
-
-
-
-
 kDefaultStringAttrValue = 'default'
 
 
@@ -27,7 +16,6 @@ class BLENDWRRAP(OpenMayaMPx.MPxDeformerNode):
     def __init__(self):
         OpenMayaMPx.MPxDeformerNode.__init__(self)
         self.default_val = False
-        self.deformer_class = DEFORMER()
 
     def get_input_geom(self, data, geom_idx):
         input_attr = data.outputArrayValue(self.input)
@@ -52,7 +40,7 @@ class BLENDWRRAP(OpenMayaMPx.MPxDeformerNode):
 
     def get_point_position(self, mfnMesh, geo_name, u, v):
         meshFn = mfnMesh
-        faceCount = cmds.polyEvaluate(geo_name, face=True)
+        faceCount = mfnMesh.numFaceVertices()
 
         # convert uv to ptr
         util = OpenMaya.MScriptUtil()
@@ -60,7 +48,8 @@ class BLENDWRRAP(OpenMayaMPx.MPxDeformerNode):
         uvPtr = util.asFloat2Ptr()
 
         positionMPoint = OpenMaya.MPoint()
-        currentUvSet = cmds.polyUVSet(geo_name, q=True, cuv=True)
+        currentUvSet = []
+        meshFn.getUVSetNames(currentUvSet)
         tolerance = 0.01
 
         # check each face for uv
@@ -96,7 +85,7 @@ class BLENDWRRAP(OpenMayaMPx.MPxDeformerNode):
         socketNode = OpenMaya.MFnDependencyNode(thisNode)
 
         node_name = socketNode.name()
-        geo_name = self.deformer_class.getAffectedGeometry(node_name).keys()[0]
+        #geo_name = self.deformer_class.getAffectedGeometry(node_name).keys()[0]
 
         input_mesh = self.get_input_geom(data, geom_index)
         input_mfnMesh = OpenMaya.MFnMesh(input_mesh)

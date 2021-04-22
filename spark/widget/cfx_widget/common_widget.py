@@ -149,6 +149,16 @@ class COMMON_WIDGET():
         grid_layout.addWidget(cache_manger_button, vertical_val, new_value, 1, 1)
         new_value += 1
 
+        # TRANSFORM OBJECT TO CLUSTER
+        transform_object_to_cluster_text = 'Transform Object to Cluster'
+        transform_object_to_cluster_toolTip = 'Create Cluster from the Transform Object'
+        transform_object_to_cluster_button = self.sample_widget_template.pushButton(set_text=transform_object_to_cluster_text,
+                                                                     min_size=[button_size, button_size],
+                                                                     set_tool_tip=transform_object_to_cluster_toolTip,
+                                                                     connect=self.transform_object_to_cluster_button_def)
+        grid_layout.addWidget(transform_object_to_cluster_button, vertical_val, new_value, 1, 1)
+        new_value += 1
+
 
         '''
         side_val = 4
@@ -277,6 +287,14 @@ class COMMON_WIDGET():
         from spark.widget.common_widget.cacheManger_widget_.cacheManger_widget import CACHEMANGER_WIDGET
         cache_mager_class = CACHEMANGER_WIDGET()
         window = cache_mager_class.window_show_def()
+
+
+    def transform_object_to_cluster_button_def(self):
+        from spark.widget.common_widget import transform_object_to_cluster_widget
+        reload(transform_object_to_cluster_widget)
+        from spark.widget.common_widget.transform_object_to_cluster_widget import TRANSFORM_OBJECT_TO_CLUSTER_WIDGET
+        transform_object_to_cluster_class = TRANSFORM_OBJECT_TO_CLUSTER_WIDGET()
+        transform_object_to_cluster_class.show()
 
 
 

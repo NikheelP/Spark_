@@ -4,6 +4,13 @@ import maya.app.general.resourceBrowser as resourceBrowser
 from shiboken2 import wrapInstance
 import shiboken2
 from PySide2 import QtWidgets
+import os
+import maya.cmds as cmds
+import maya.OpenMayaUI as omu
+from functools import partial
+import maya.api.OpenMaya as om
+import maya.OpenMayaMPx as OpenMayaMPx
+import maya.OpenMayaAnim as oma
 
 
 from maya import OpenMayaUI as omui
@@ -167,4 +174,41 @@ class HELP:
     def worldBlendshape(self, obj_one, obj_two):
         blend_shape = cmds.blendShape(obj_one, obj_two, o='world')[0]
         cmds.setAttr(blend_shape + '.' + obj_one, 1)
+
+    def pivot_move(self, obj_name, pos):
+        cmds.setAttr((obj_name + '.rotatePivotX'), pos[0])
+        cmds.setAttr((obj_name + '.rotatePivotY'), pos[1])
+        cmds.setAttr((obj_name + '.rotatePivotZ'), pos[2])
+        cmds.setAttr((obj_name + '.scalePivotX'), pos[0])
+        cmds.setAttr((obj_name + '.scalePivotY'), pos[1])
+        cmds.setAttr((obj_name + '.scalePivotZ'), pos[2])
+
+    def weight_value(self, each_surface, each_transform):
+        self.base_MSelection_list = om.MSelectionList()
+        self.base_MSelection_list.add(each_surface)
+        self.base_geo_dag_path = self.base_MSelection_list.getDagPath(0)
+
+        # get the base vertex position
+        self.base_mfn_mesh = om.MFnMesh(self.base_geo_dag_path)
+        self.base_vtx_list = self.base_mfn_mesh.getPoints(om.MSpace.kWorld)
+
+        # get the value
+        self.clusterMSelection = om.MSelectionList()
+        self.clusterMSelection.add(each_transform)
+        self.clusterDagPath = self.clusterMSelection.getDagPath(0)
+        self.mFnTransform = om.MFnTransform(self.clusterDagPath)
+        self.world = self.mFnTransform.translation(om.MSpace.kWorld)
+        self.moveWorld = om.MVector(self.world.x + 1.0, self.world.y, self.world.z)
+        self.mFnTransform.setTranslation(self.moveWorld, om.MSpace.kWorld)
+        self.movePosition = self.base_mfn_mesh.getPoints(om.MSpace.kWorld)
+        self.mFnTransform.setTranslation(self.world, om.MSpace.kWorld)
+
+        # get the diff
+        weight_val_list = []
+        a = 0
+        while a < len(self.base_vtx_list):
+            diff_val = self.movePosition[a].x - self.base_vtx_list[a].x
+            weight_val_list.append(diff_val)
+            a += 1
+        return weight_val_list
 
