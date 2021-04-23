@@ -162,56 +162,6 @@ class BAKELOC(SAMPLE_WIDGET):
         #BUTTON WIDGET
         vertical_layout.addWidget(self.bakeLoc_widget())
 
-
-
-        '''
-        
-        main_widget = self.get_main_widget()
-
-        grid_layout = self.sample_widget_template.grid_layout(parent_self=main_widget)
-
-        button_size = 150
-        a = 0
-        new_value = 0
-        vertical_val = 0
-
-        time_line_lable = self.sample_widget_template.label(set_text='TimeLine')
-        grid_layout.addWidget(time_line_lable, vertical_val, new_value, 1, 1)
-        new_value += 1
-
-        self.start_time_lineedit = self.sample_widget_template.line_edit(set_PlaceholderText='Start Time',
-                                                                         set_text=str(self.startTime))
-        self.start_time_lineedit.textChanged.connect(self.start_time_lineedit_def)
-        grid_layout.addWidget(self.start_time_lineedit, vertical_val, new_value, 1, 1)
-        new_value += 1
-
-        self.end_time_lineedit = self.sample_widget_template.line_edit(set_PlaceholderText='End Time',
-                                                                       set_text=str(self.endTime))
-        self.end_time_lineedit.textChanged.connect(self.end_time_lineedit_def)
-        grid_layout.addWidget(self.end_time_lineedit, vertical_val, new_value, 1, 1)
-        new_value = 0
-        vertical_val += 1
-
-        ctrl_name_label = self.sample_widget_template.label(set_text='Ctrl Name')
-        grid_layout.addWidget(ctrl_name_label, vertical_val, new_value, 1, 1)
-        new_value += 1
-
-        self.ctrl_lineedit = self.sample_widget_template.line_edit(set_PlaceholderText='select Bunch of Control or One Control')
-        grid_layout.addWidget(self.ctrl_lineedit, vertical_val, new_value, 1, 2)
-        new_value += 1
-
-        self.ctrl_query_button = self.sample_widget_template.pushButton(set_text='...',
-                                                                       connect=self.ctrl_query_button_def)
-        grid_layout.addWidget(self.ctrl_query_button, vertical_val, new_value, 1, 2)
-
-
-        new_value = 0
-        vertical_val += 1
-
-        bakeLOC_button = self.sample_widget_template.pushButton(set_text='Bake LOC',
-                                                                 connect=self.bakeLOC_button_def)
-        grid_layout.addWidget(bakeLOC_button, vertical_val, new_value, 1, 3)
-        '''
     def update_child_ctrl(self):
         if self.checkbox_val == False:
             self.child_ctrl_linedit.setDisabled(False)
