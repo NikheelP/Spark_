@@ -214,7 +214,10 @@ class BAKELOC(SAMPLE_WIDGET):
                         attr_we_want = [ 'translateX', 'translateY', 'translateZ', 'rotateX', 'rotateY', 'rotateZ', 'scaleX', 'scaleY', 'scaleZ']
                         for each_attr in list_attr:
                             if each_attr in attr_we_want:
-                                mel.eval('CBdeleteConnection "%s.%s";' %(child_ctrl_list[a], each_attr))
+                                listConnection = cmds.listConnections(child_ctrl_list[a] + '.' + each_attr)
+                                if listConnection != None:
+                                    cmds.delete(listConnection)
+                                #mel.eval('CBdeleteConnection "%s.%s";' %(child_ctrl_list[a], each_attr))
 
 
                         cmds.parentConstraint(each, child_ctrl_list[a], mo=False)
