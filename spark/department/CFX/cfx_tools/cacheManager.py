@@ -66,7 +66,7 @@ class CACHEMANAGER:
                     if self.get_file_name() in each:
                         file_path_list.append(each)
             file_name = self.get_file_name() + '_' + str(len(file_path_list) + 1) + '_Sim_Cache'
-            if '-' in file_name:
+            if '-' in file_name or '__' in file_name:
                 file_name = file_name.replace('-', '_')
 
             cmds.select(ncloth_list)
