@@ -184,6 +184,78 @@ class BAKELOC(SAMPLE_WIDGET):
             self.checkbox_val = True
             self.update_child_ctrl()
 
+    def parent_scale_const(self,first_obj ,secound_obj):
+        '''
+
+        :return:
+        '''
+
+        list_attr = cmds.listAttr(secound_obj, k=True)
+        trans_x = False
+        trans_y = False
+        trans_z = False
+        rot_x = False
+        rot_y = False
+        rot_z = False
+        scale_x = False
+        scale_y = False
+        scale_z = False
+
+        for each in list_attr:
+
+            if 'rotate' in each:
+                if 'x' in each.lower():
+                    rot_x = True
+                elif 'y' in each.lower():
+                    rot_y = True
+                elif 'z' in each.lower():
+                    rot_z = True
+
+            if 'translate' in each:
+                if 'x' in each.lower():
+                    trans_x = True
+                elif 'y' in each.lower():
+                    trans_y = True
+                elif 'z' in each.lower():
+                    trans_z = True
+
+            if 'scale' in each:
+                if 'x' in each.lower():
+                    scale_x = True
+                elif 'y' in each.lower():
+                    scale_y = True
+                elif 'z' in each.lower():
+                    scale_z = True
+
+        # get the list
+        translate_list = []
+        rotate_list = []
+        scale_list = []
+        axis = ['x', 'y', 'z']
+        a = 0
+        for each in [trans_x, trans_y, trans_z]:
+            if each == False:
+                translate_list.append(axis[a])
+
+            a += 1
+
+        a = 0
+        for each in [rot_x, rot_y, rot_z]:
+            if each == False:
+                rotate_list.append(axis[a])
+
+            a += 1
+
+        a = 0
+        for each in [scale_x, scale_y, scale_z]:
+            if each == False:
+                scale_list.append(axis[a])
+
+            a += 1
+
+        cmds.parentConstraint(first_obj, secound_obj, sr=rotate_list, st=translate_list, mo=False)
+        cmds.scaleConstraint(first_obj, secound_obj, skip=scale_list, mo=False)
+
     def bakeLOC_button_def(self):
         '''
 
@@ -220,15 +292,10 @@ class BAKELOC(SAMPLE_WIDGET):
                                 #mel.eval('CBdeleteConnection "%s.%s";' %(child_ctrl_list[a], each_attr))
 
 
-                        cmds.parentConstraint(each, child_ctrl_list[a], mo=False)
-                        cmds.scaleConstraint(each, child_ctrl_list[a], mo=False)
+                        self.parent_scale_const(each, child_ctrl_list[a])
 
-                        parent_const_name = child_ctrl_list[a] + '_parentConstraint1'
-                        scale_const_name = child_ctrl_list[a] + '_scaleConstraint1'
 
                         object_list_to_bake.append(child_ctrl_list[a])
-                        parent_scale_const_list.append(parent_const_name)
-                        parent_scale_const_list.append(scale_const_name)
 
 
                         a+=1
@@ -242,22 +309,28 @@ class BAKELOC(SAMPLE_WIDGET):
                     if not cmds.objExists(loc_name):
                         cmds.spaceLocator(n=loc_name)
 
-                    cmds.parentConstraint(each, loc_name, mo=False)
-                    cmds.scaleConstraint(each, loc_name, mo=False)
-
-                    parent_const_name = loc_name + '_parentConstraint1'
-                    scale_const_name = loc_name + '_scaleConstraint1'
+                    self.parent_scale_const(each, loc_name)
 
                     object_list_to_bake.append(loc_name)
-                    parent_scale_const_list.append(parent_const_name)
-                    parent_scale_const_list.append(scale_const_name)
-
 
 
         cmds.select(object_list_to_bake)
         mel.eval('doBakeSimulationArgList 8 { "1","0","10","1","0","0","1","1","0","1","animationList","0","0","0","0","0","1","0","1" };')
 
-        cmds.delete(parent_scale_const_list)
+
+        for each in object_list_to_bake:
+            scale__ = cmds.listConnections(each, type='scaleConstraint')
+            parent__ = cmds.listConnections(each, type='parentConstraint')
+            if scale__:
+                for each_scale in scale__:
+                    if cmds.objExists(each_scale):
+                        cmds.delete(each_scale)
+
+            if parent__:
+                for each_parent in parent__:
+                    if cmds.objExists(each_parent):
+                        cmds.delete(each_parent)
+
 
         cmds.playbackOptions(minTime=startTime)
         cmds.playbackOptions(maxTime=endTime)
