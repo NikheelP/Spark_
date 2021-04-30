@@ -25,14 +25,24 @@ class RENAME():
     def add_prefix(self, list_object, prefix_name):
         if self.help_class.is_type(list_object) == list:
             for each in list_object:
-                new_name = prefix_name + each
+                if '|' in each:
+                    last_name = each.split('|')[-1]
+                else:
+                    last_name = each
+
+                new_name = prefix_name + last_name
                 cmds.rename(each, new_name)
 
 
     def add_suffix(self, list_object, suffix_name):
         if self.help_class.is_type(list_object) == list:
             for each in list_object:
-                new_name = each + suffix_name
+                if '|' in each:
+                    first_name = each.split('|')[-1]
+                else:
+                    first_name = each
+
+                new_name = first_name + suffix_name
                 cmds.rename(each, new_name)
 
 
@@ -48,6 +58,8 @@ class RENAME():
         while a < len(list_object):
             number = str(format(start_val, '0%s' % (padding)))
             name = object_name + number
+
+
             cmds.rename(list_object[a], name)
             start_val += 1
             a += 1

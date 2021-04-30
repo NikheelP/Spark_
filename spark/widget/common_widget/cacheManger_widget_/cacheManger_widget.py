@@ -1193,6 +1193,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         #CAMERA COMBOXBOX
         self.camera_combobox = self.sample_widget_template.comboBox(addItems=self.cam_list)
+        if 'renderCam' in self.cam_list:
+            self.camera_combobox.setCurrentText('renderCam')
 
         self.camera_combobox.currentIndexChanged.connect(self.camera_combobox_def)
         grid_layout.addWidget(self.camera_combobox, vertical_val, new_value, 1, 1)
@@ -1813,6 +1815,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         current_start_frame, current_end_frame = self.cache_manager_class.set_frames(new_start_frame=self.playblast_start_val,
                                                                  new_end_frame=self.playblast_end_val)
 
+        self.camera_name = self.camera_combobox.currentText()
+
         all_panel = cmds.getPanel(type='modelPanel')
         for each_panel in all_panel:
             try:
@@ -1832,7 +1836,23 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
             if '.mov' in each:
                 if self.cache_manager_class.get_file_name() in each:
                     file_path_list.append(each)
-        name = self.playblast_cache_path + '/' + self.cache_manager_class.get_file_name() + '_' + str(len(file_path_list)) + '_PlayBlast'
+
+
+        #CHECK IF THE PLAYBLAST SETTING IS SELECTED
+        item = self.playblast_list_widget.selectedItems()
+        if item:
+
+            warning = QMessageBox.question(self, '', "Are you sure you want to replace?", QMessageBox.Yes | QMessageBox.No)
+            if warning == QMessageBox.Yes:
+                name = self.playblast_cache_path + '/' + item[0].text()
+            else:
+                name = self.playblast_cache_path + '/' + self.cache_manager_class.get_file_name() + '_' + str(
+                    len(file_path_list)) + '_PlayBlast'
+
+
+        else:
+            name = self.playblast_cache_path + '/' + self.cache_manager_class.get_file_name() + '_' + str(len(file_path_list)) + '_PlayBlast'
+
         file_name = name + '.mov'
         json_name = name + '.json'
 
@@ -1854,6 +1874,9 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.update_playblast_list_widget()
 
         #UPDATE THE JSON PATH
+        if item:
+            os.remove(json_name)
+
         attr_list= {}
         attr_list['Comments'] = self.comments_plain_text_edit.toPlainText()
         with open(json_name, 'w') as f:

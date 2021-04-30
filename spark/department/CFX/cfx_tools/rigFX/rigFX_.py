@@ -148,7 +148,6 @@ class RIGFX:
             a += 1
 
         #SET NCLOTH VAL TO VISIBLE
-        cmds.connectAttr((ncloth_name + '.isDynamic'), (ncloth_name + '.v'), f=True)
 
         #now set the color
         self.help_class.set_outline_color(cloth_name, val=[0, 1, 1])

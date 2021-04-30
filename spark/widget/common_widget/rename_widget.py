@@ -322,6 +322,7 @@ class RENAME_WIDGET(SAMPLE_WIDGET):
 
     def prefix_button_def(self):
         list_object = cmds.ls(sl=True)
+        print('this is the list object: ', list_object)
         prefix_val = self.prefix_linedit.text()
         self.rename_class.add_prefix(list_object=list_object, prefix_name=prefix_val)
 
