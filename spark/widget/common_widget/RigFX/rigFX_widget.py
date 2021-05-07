@@ -843,8 +843,29 @@ class RIGFX_WIDGET(SAMPLE_WIDGET):
         '''
         sel_obj = cmds.ls(sl=True)
 
+        list_obj_exist = []
+        for each in sel_obj:
+            grp_name = each + '_Grp'
+
+            if cmds.objExists(grp_name):
+                list_obj_exist.append(grp_name)
+
+        if list_obj_exist:
+            raise RuntimeError(list_obj_exist, ' is Already exists Please Look at the Grp and thne run the command')
+
+        for each in sel_obj:
+            grp_name = each
+            #CREATE GRP STRUCTURE
+            grp_name = self.rig_fx_class.create_cloth_folder_structure(cloth_name=grp_name)
+
+            self.rig_fx_class.create_cloth_rigfx_def(each, cloth_grp_name=grp_name)
+
+
+
+
+
         #CREATE A TECHANIM FILE
-        self.rig_fx_class.create_cloth_rigfx_def(sel_obj[0], cloth_grp_name=sel_obj[1])
+        #self.rig_fx_class.create_cloth_rigfx_def(sel_obj[0], cloth_grp_name=sel_obj[1])
 
 
     def nhair_def(self):
