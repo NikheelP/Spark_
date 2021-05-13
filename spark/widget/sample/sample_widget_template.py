@@ -840,5 +840,14 @@ class SAMPLE_WIDGET_TEMPLATE():
 
         return obj_name
 
+    def progressBar(self, self_val=''):
+        '''
+
+        :return:
+        '''
+
+        progress_bar = QProgressBar()
+
+        return progress_bar
 
 

@@ -41,6 +41,14 @@ rigFxIconPath = os.path.abspath(rigFX_icon.__file__).replace('\\', '/')
 last_obj = rigFxIconPath.split('/')[-1]
 rigfxIconPath_ = rigFxIconPath.split(last_obj)[0]
 
+class playblastListWidget(QListWidget):
+    def mousePressEvent(self, event):
+        if not self.indexAt(event.pos()).isValid():
+            self.selectionModel().clear()
+        super(playblastListWidget, self).mousePressEvent(event)
+
+
+
 class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
     def __init__(self, title='Cache Manger', width=1200):
         super(CACHEMANGER_WIDGET, self).__init__(title=title, width=width)
@@ -1211,7 +1219,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
 
         ####################################
         #LIST WIDGET
-        self.playblast_list_widget = self.sample_widget_template.list_widget()
+        #self.playblast_list_widget = self.sample_widget_template.list_widget()
+        self.playblast_list_widget = playblastListWidget()
         self.update_playblast_list_widget()
         self.playblast_list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.playblast_list_widget.customContextMenuRequested.connect(self.playblast_list_widget_contexMenu)
@@ -1222,6 +1231,9 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         self.set_cache_manger_data()
 
         return widget
+
+    def playblast_list_widget_click_def(self):
+        print('this is the playblast deselect')
 
     def camera_combobox_def(self, index):
         '''

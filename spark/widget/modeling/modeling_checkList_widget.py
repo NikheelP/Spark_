@@ -1,9 +1,9 @@
+from spark.department.Modeling import modeling_checklist
 
 for each in [modeling_checklist]:
     reload(each)
 
 
-from spark.department.Modeling import modeling_checklist
 
 from spark.widget.sample.sample_maya_widget import SAMPLE_WIDGET
 from collections import OrderedDict
@@ -17,6 +17,7 @@ class MODELING_CHECKLIST_WIDGET(SAMPLE_WIDGET):
 
         self.checkbox_list = OrderedDict()
         self.checkbox_button_list = OrderedDict()
+        self.progressBar_list = OrderedDict()
 
 
 
@@ -66,8 +67,13 @@ class MODELING_CHECKLIST_WIDGET(SAMPLE_WIDGET):
         gridLayout.addWidget(self.checkbox_list['delete_history'], vertical_val, new_value, 1, 1)
         new_value += 1
 
+        self.progressBar_list['delete_history'] = self.sample_widget_template.progressBar()
+        gridLayout.addWidget(self.progressBar_list['delete_history'], vertical_val, new_value, 1, 1)
+        new_value += 1
+
         delete_history_button_text = 'Delete History'
-        self.checkbox_button_list['delete_history'] =  self.sample_widget_template.pushButton(set_text=delete_history_button_text)
+        self.checkbox_button_list['delete_history'] =  self.sample_widget_template.pushButton(set_text=delete_history_button_text,
+                                                                                              connect=self.deleteHistory_def)
         gridLayout.addWidget(self.checkbox_button_list['delete_history'], vertical_val, new_value, 1, 1)
         vertical_val += 1
         new_value = 0
@@ -211,6 +217,17 @@ class MODELING_CHECKLIST_WIDGET(SAMPLE_WIDGET):
         '''
         return self.sample_widget_template.styleSheet_def(obj_name=obj_name,
                                                           background_color=self.color_variable_class.green_color.get_value())
+
+    def deleteHistory_def(self):
+        '''
+
+        :return:
+        '''
+        self.completed = 0
+
+        while self.completed < 100:
+            self.completed += 0.0001
+            self.progressBar_list['delete_history'].setValue(self.completed)
 
 '''
 from spark.widget.modeling import modeling_checkList_widget
