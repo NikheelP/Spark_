@@ -1959,8 +1959,8 @@ class CACHEMANGER_WIDGET(SAMPLE_WIDGET):
         file_path = name + '.abc'
         json_name = name + '.json'
 
-        self.geo_cache_class.export_abc_file(start_frame=self.final_start_val,
-                                             end_frame=self.final_end_val,
+        self.geo_cache_class.export_abc_file(start_frame=self.manual_start_val,
+                                             end_frame=self.manual_end_val,
                                              char_list=sel_obj,
                                              abc_file_path=file_path)
 
