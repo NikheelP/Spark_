@@ -1,13 +1,11 @@
+from spark.department.Help.Houdini import nodes, help
 
-from spark.Houdini.common import help
-from spark.Houdini.common import nodes
 for each in [help, nodes]:
     reload(each)
-from spark.Houdini.common.help import HELP
-from spark.Houdini.common.nodes import NODES
+from spark.department.Help.Houdini.help import HELP
+from spark.department.Help.Houdini.nodes import NODES
 
 import hou, random
-from collections import OrderedDict
 
 
 class SOFTMOD:

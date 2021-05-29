@@ -1,10 +1,10 @@
-from spark.Houdini.common import help
-from spark.Houdini.common import nodes
+from spark.department.Help.Houdini import nodes, help
+
 for each in [help, nodes]:
     reload(each)
 
-from spark.Houdini.common.help import HELP
-from spark.Houdini.common.nodes import NODES
+from spark.department.Help.Houdini.help import HELP
+from spark.department.Help.Houdini.nodes import NODES
 
 import hou
 from collections import OrderedDict
@@ -198,12 +198,6 @@ class HOUDINI_CLOTHSETUP():
         self.input_out_dic['Name'] = 'INPUT_OUT'
         grp_pos_Y = grp_pos_Y - self.distance
         self.input_out_dic['pos'] = [grp_pos_x, grp_pos_Y]
-
-
-
-
-
-
 
     def create(self):
         '''

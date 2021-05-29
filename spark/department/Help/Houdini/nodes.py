@@ -1,9 +1,9 @@
-from spark.Houdini.common import help
+from spark.department.Help.Houdini import help
 
 for each in [help]:
     reload(help)
 
-from spark.Houdini.common.help import HELP
+from spark.department.Help.Houdini.help import HELP
 
 
 class NODES:
@@ -11,7 +11,18 @@ class NODES:
     def __init__(self):
         self.help_class = HELP()
 
-    def create_null_node(self, obj_path, node_type='null', node_name='', pos=[0, 0], color=[0, 0, 0]):
+        #NODE NAME
+        self.null_node_name = 'null'
+        self.alembic_node_name = 'alembic'
+        self.alembic_group_node_name = 'alembicgroup'
+        self.convert_node_name = 'convert'
+        self.normal_node_name = 'normal'
+        self.clean_node_name = 'clean'
+
+
+
+
+    def create_null_node(self, obj_path, node_name='', pos=[0, 0], color=[0, 0, 0]):
         '''
 
         :param obj_path: SPECIFY THE OBJ PATH
@@ -23,14 +34,14 @@ class NODES:
         '''
 
         node = self.help_class.createNode(obj_path=obj_path,
-                                          node_type=node_type,
+                                          node_type=self.null_node_name,
                                           node_name=node_name,
                                           pos=pos,
                                           color=color)
 
         return node
 
-    def createAlembicNode(self, obj_path, node_type='alembic', node_name='SampleAlembic', pos=[0, 0], color=[0.996, 0.993, 0]):
+    def createAlembicNode(self, obj_path, node_name='SampleAlembic', pos=[0, 0], color=[0.996, 0.993, 0]):
         '''
 
         :param obj_path: SPECIFY THE OBJ PATH
@@ -41,14 +52,14 @@ class NODES:
         :return:
         '''
         node = self.help_class.createNode(obj_path=obj_path,
-                                          node_type=node_type,
+                                          node_type=self.alembic_node_name,
                                           node_name=node_name,
                                           pos=pos,
                                           color=color)
 
         return node
 
-    def createAlembicGroupNode(self, obj_path, node_type='alembicgroup', node_name='SampleAlembicGroup', pos=[0, 0], color=[0.8, 0.8, 0.8]):
+    def createAlembicGroupNode(self, obj_path, node_name='SampleAlembicGroup', pos=[0, 0], color=[0.8, 0.8, 0.8]):
         '''
 
         :param obj_path: SPECIFY THE OBJ PATH
@@ -59,14 +70,14 @@ class NODES:
         :return:
         '''
         node = self.help_class.createNode(obj_path=obj_path,
-                                          node_type=node_type,
+                                          node_type=self.alembic_group_node_name,
                                           node_name=node_name,
                                           pos=pos,
                                           color=color)
 
         return node
 
-    def convertNode(self, obj_path, node_type='convert', node_name='SampleConvert', pos=[0, 0], color=[0.8, 0.8, 0.8]):
+    def convertNode(self, obj_path, node_name='SampleConvert', pos=[0, 0], color=[0.8, 0.8, 0.8]):
         '''
 
         :param obj_path: SPECIFY THE OBJ PATH
@@ -77,14 +88,14 @@ class NODES:
         :return:
         '''
         node = self.help_class.createNode(obj_path=obj_path,
-                                          node_type=node_type,
+                                          node_type=self.convert_node_name,
                                           node_name=node_name,
                                           pos=pos,
                                           color=color)
 
         return node
 
-    def normalNode(self, obj_path, node_type='normal', node_name='SampleNormal', pos=[0, 0], color=[0.8, 0.8, 0.8]):
+    def normalNode(self, obj_path, node_name='SampleNormal', pos=[0, 0], color=[0.8, 0.8, 0.8]):
         '''
 
         :param obj_path: SPECIFY THE OBJ PATH
@@ -95,14 +106,14 @@ class NODES:
         :return:
         '''
         node = self.help_class.createNode(obj_path=obj_path,
-                                          node_type=node_type,
+                                          node_type=self.normal_node_name,
                                           node_name=node_name,
                                           pos=pos,
                                           color=color)
 
         return node
 
-    def cleanNode(self, obj_path, node_type='clean', node_name='SampleClean', pos=[0, 0], color=[0.8, 0.8, 0.8]):
+    def cleanNode(self, obj_path, node_name='SampleClean', pos=[0, 0], color=[0.8, 0.8, 0.8]):
         '''
 
         :param obj_path: SPECIFY THE OBJ PATH
@@ -113,7 +124,7 @@ class NODES:
         :return:
         '''
         node = self.help_class.createNode(obj_path=obj_path,
-                                          node_type=node_type,
+                                          node_type=self.clean_node_name,
                                           node_name=node_name,
                                           pos=pos,
                                           color=color)
