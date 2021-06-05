@@ -4,11 +4,16 @@ import os
 import hou
 from spark.widget.sample import sample_color_variable, sample_widget_template, style_sheet_template
 from spark.widget.sample import sample_houdini_widget
+from spark.widget.CFX.Houdini import cloth_widget
 
-for each in [sample_color_variable, sample_widget_template, style_sheet_template, sample_houdini_widget]:
+for each in [sample_color_variable, sample_widget_template, style_sheet_template, sample_houdini_widget, cloth_widget]:
     reload(each)
 
+
+
 from spark.widget.sample.sample_houdini_widget import SAMPLE_WIDGET
+from spark.widget.CFX.Houdini.cloth_widget import CLOTH_WIDGET
+
 
 #os.path.abspath(smoothNode.__file__).replace('\\', '/')
 
@@ -17,6 +22,8 @@ class CFX(SAMPLE_WIDGET):
         super(CFX, self).__init__(title=title)
         #LOAD ALL THE DIGITAL ASSTS
         self.load_all_otls()
+
+        self.cloth_widget_class = CLOTH_WIDGET()
 
 
         self.ui()
@@ -39,7 +46,7 @@ class CFX(SAMPLE_WIDGET):
         # CLOTH TAB
         cloth_name = 'Cloth'
         cloth_tab = self.sample_widget_template.widget_def(parent_self=tab_widget)
-        #self.cloth_widget_class.ui(cloth_tab)
+        self.cloth_widget_class.ui(cloth_tab)
         tab_widget.addTab(cloth_tab, cloth_name.upper())
 
         # HAIR TAB

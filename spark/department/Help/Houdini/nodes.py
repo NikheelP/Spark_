@@ -18,6 +18,7 @@ class NODES:
         self.convert_node_name = 'convert'
         self.normal_node_name = 'normal'
         self.clean_node_name = 'clean'
+        self.smooth_node_name = 'smooth::2.0'
 
 
 
@@ -130,4 +131,27 @@ class NODES:
                                           color=color)
 
         return node
+
+    def smoothNode(self, obj_path, node_name='sampleSmooth', pos=[0, 0], color=[0.8, 0.8, 0.8], setInput=None, parent_obj=None):
+        '''
+
+        :param obj_path:
+        :param node_name:
+        :param pos:
+        :param color:
+        :param setInput:
+        :return:
+        '''
+        node = self.help_class.createNode(obj_path=obj_path,
+                                          node_type=self.smooth_node_name,
+                                          node_name=node_name,
+                                          pos=pos,
+                                          color=color)
+
+        if setInput is not None:
+            if parent_obj is not None:
+                node.setInput(0, parent_obj)
+
+        return node
+
 
