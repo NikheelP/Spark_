@@ -155,7 +155,6 @@ class CLOTH_WIDGET():
 
         text = self.filter_linedit.text()
 
-        print('this is the text: ', text)
 
     def smooth_button_def(self):
         '''
@@ -167,7 +166,6 @@ class CLOTH_WIDGET():
         if selected_nodes:
             selected_nodes = selected_nodes[0]
             parent_obj = selected_nodes.parent()
-            print('this is selected nodes: ', selected_nodes)
             #CREATE NODE
             #GET THE NO OF THE NODE TYOE
             val = int(self.help_class.get_no_of_node_type(parent_obj, node_type))
