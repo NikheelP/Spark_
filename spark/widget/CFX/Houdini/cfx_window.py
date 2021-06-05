@@ -80,7 +80,7 @@ class CFX(SAMPLE_WIDGET):
         for each_file in dirfiles:
             full_path = os.path.join(dirname, each_file)
             if os.path.isdir(full_path):
-                otl_file = dirname + '/' + each_file + '/' + each_file + '.hdanc'
+                otl_file = dirname + '/' + each_file + '/' + each_file + '.hda'
                 hou.hda.installFile(otl_file)
 
 
